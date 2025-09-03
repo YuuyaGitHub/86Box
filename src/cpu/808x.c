@@ -2680,6 +2680,7 @@ execute_instruction(void)
 {
     uint8_t       temp = 0;
     uint8_t       tempb;
+    uint8_t       nests;
 
     int8_t        rel8;
 
@@ -2693,6 +2694,9 @@ execute_instruction(void)
     uint16_t      old_ip;
     uint16_t      old_flags;
     uint16_t      prod16;
+    uint16_t      tempw_int;
+    uint16_t      size;
+    uint16_t      tempbp;
 
     int16_t       rel16;
 
@@ -3625,6 +3629,28 @@ execute_instruction(void)
             break;
 
         case 0xc8: /* RETF imm16 */
+            if (is_nec) {
+                /* ENTER/PREPARE */
+                tempw_int = 0;
+                size      = pfq_fetchw();
+                nests     = pfq_fetchb();
+
+                push(&BP);
+                tempw_int = SP;
+                if (nests > 0) {
+                     while (--nests) {
+                        tempbp = 0;
+                        BP -= 2;
+                        tempbp = readmemw(ss, BP);
+                        push(&tempbp);
+                    }
+                    push(&tempw_int);
+                }
+                BP = tempw_int;
+                SP -= size;
+                break;
+            } else
+                fallthrough;
         case 0xca:
             bits = 16;
             /* read_operand16() */
