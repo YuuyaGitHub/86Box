@@ -293,6 +293,12 @@ x808x_log(const char *fmt, ...)
 #    define x808x_log(fmt, ...)
 #endif
 
+#ifdef ENABLE_EXTRA_EU_LOG
+#    define extra_eu_log pclog
+#else
+#    define extra_eu_log(fmt, ...)
+#endif
+
 static i8080 emulated_processor;
 static bool cpu_md_write_disable = 1;
 
@@ -504,24 +510,24 @@ C18:
 #endif
 
     /* Reset takes 6 cycles before first fetch. */
-    pclog("startx86() begin:\n");
-    pclog("    [%i] do_cycle();\n", pfq_size);
+    extra_eu_log("startx86() begin:\n");
+    extra_eu_log("    [%i] do_cycle();\n", pfq_size);
     do_cycle();
-    pclog("    [%i] biu_suspend_fetch();\n", pfq_size);
+    extra_eu_log("    [%i] biu_suspend_fetch();\n", pfq_size);
     biu_suspend_fetch();
-    pclog("    [%i] do_cycles_i(2);\n", pfq_size);
+    extra_eu_log("    [%i] do_cycles_i(2);\n", pfq_size);
     do_cycles_i(2);
-    pclog("    [%i] biu_queue_flush();\n", pfq_size);
+    extra_eu_log("    [%i] biu_queue_flush();\n", pfq_size);
     biu_queue_flush();
-    pclog("    [%i] do_cyles_i(3);\n", pfq_size);
+    extra_eu_log("    [%i] do_cyles_i(3);\n", pfq_size);
     do_cycles_i(3);
-    pclog("startx86() end;\n");
+    extra_eu_log("startx86() end;\n");
 }
 
 static void
 load_cs(uint16_t seg)
 {
-    // pclog("CS = %04X\n", seg);
+    // extra_eu_log("CS = %04X\n", seg);
     cpu_state.seg_cs.base = seg << 4;
     cpu_state.seg_cs.seg  = seg & 0xffff;
 }
@@ -1955,7 +1961,7 @@ finalize(void)
 
     if (irq_pending())
         cpu_state.pc--;
-    // pclog("finalize(): biu_queue_preload = %i\n", biu_queue_preload);
+    // extra_eu_log("finalize(): biu_queue_preload = %i\n", biu_queue_preload);
 }
 
 /* Fetches the effective address from the prefetch queue according to MOD and R/M. */
@@ -2156,8 +2162,9 @@ execute_instruction(void)
         nx = 0;
     }
 
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-        pclog("execute_instruction(); actual instruction begin\n");
+    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+        extra_eu_log("execute_instruction(); actual instruction begin\n");
+    }
 
     switch (opcode) {
         case 0x00: /* ADD r/m8, r8; r8, r/m8; al, imm8 */
@@ -2242,22 +2249,26 @@ execute_instruction(void)
             nx = 1;
             /* read_operand16() */
             if (opcode & 0x04) {
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("cpu_data   = pfq_fetch(); begin\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("cpu_data   = pfq_fetch(); begin\n");
+                }
                 cpu_data   = pfq_fetch();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("cpu_data   = pfq_fetch(); end\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("cpu_data   = pfq_fetch(); end\n");
+                }
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
                 // do_mod_rm();
                 if (cpu_mod != 3)
                     do_cycles_i(2);    /* load_operand() */
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("tempw      = get_ea(); begin\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("tempw      = get_ea(); begin\n");
+                }
                 tempw      = get_ea();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("tempw      = get_ea(); end\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("tempw      = get_ea(); end\n");
+                }
                 if (opcode & 2) {
                     cpu_dest = get_reg(cpu_reg);
                     cpu_src  = tempw;
@@ -2266,13 +2277,15 @@ execute_instruction(void)
                     cpu_src  = get_reg(cpu_reg);
                 }
             }
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                pclog("cycles; begin\n");
+            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                extra_eu_log("cycles; begin\n");
+            }
             do_cycles_nx_i(2);
             if (!(opcode & 0x06) && (cpu_mod != 3))
                 do_cycles_i(2);
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                pclog("cycles; end\n");
+            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                extra_eu_log("cycles; end\n");
+            }
 
             /* math_op16() */
             math_op((opcode >> 3) & 7);
@@ -2283,11 +2296,13 @@ execute_instruction(void)
                 if (opcode & 0x02)
                     set_reg(cpu_reg, cpu_data);
                 else {
-                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                        pclog("set_ea(cpu_data); begin\n");
+                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                        extra_eu_log("set_ea(cpu_data); begin\n");
+                    }
                     set_ea(cpu_data);
-                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                        pclog("set_ea(cpu_data); end\n");
+                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                        extra_eu_log("set_ea(cpu_data); end\n");
+                    }
                 }
             }
             break;
@@ -4055,32 +4070,39 @@ execx86(int cycs)
             if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_H))
                 fatal("EOF\n");
 
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                pclog("decode(); begin\n");
+            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                extra_eu_log("decode(); begin\n");
+            }
             decode();
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                pclog("decode(); end\n");
+            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                extra_eu_log("decode(); end\n");
+            }
 
             oldc    = cpu_state.flags & C_FLAG;
         }
 
         x808x_log("[%04X:%04X] Opcode: %02X\n", CS, cpu_state.pc, opcode);
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-            pclog("[%04X:%04X] Opcode: %02X (DX = %04X)\n", CS, cpu_state.pc, opcode, DX);
+        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+            extra_eu_log("[%04X:%04X] Opcode: %02X (DX = %04X)\n", CS, cpu_state.pc, opcode, DX);
+        }
 
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-            pclog("execute_instruction(); begin\n");
+        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+            extra_eu_log("execute_instruction(); begin\n");
+        }
         execute_instruction();
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-            pclog("execute_instruction(); end\n");
+        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+            extra_eu_log("execute_instruction(); end\n");
+        }
 
         if (completed) {
             if (opcode != 0xf4) {
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("finalize(); begin\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("finalize(); begin\n");
+                }
                 finalize();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                    pclog("finalize(); end\n");
+                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                    extra_eu_log("finalize(); end\n");
+                }
             }
 
             check_interrupts();
