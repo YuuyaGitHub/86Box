@@ -3234,8 +3234,10 @@ execute_instruction(void)
                 cpu_src = 10;
 #endif
             /* aam() */
-            if (x86_div(AL, 0))
-                set_pzs(16);
+            if (x86_div(AL, 0)) {
+                cpu_data = AL;
+                set_pzs(8);
+            }
             break;
 
         case 0xd5: /* AAD */
@@ -3250,6 +3252,7 @@ execute_instruction(void)
             add(8);
             AL = cpu_data;
             AH = 0x00;
+            set_pzs(8);
             break;
 
         case 0xd6: /* SALC */
