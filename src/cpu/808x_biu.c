@@ -106,6 +106,12 @@ x808x_biu_log(const char *fmt, ...)
 #    define x808x_biu_log(fmt, ...)
 #endif
 
+#ifdef ENABLE_EXTRA_BIU_LOG
+#    define extra_biu_log pclog
+#else
+#    define extra_biu_log(fmt, ...)
+#endif
+
 void
 biu_set_bus_cycle(int bus_cycle)
 {
@@ -433,19 +439,20 @@ biu_print_cycle(void)
 
     if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
         if (biu_state >= BIU_STATE_PF) {
-            if (biu_wait)
-                pclog("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                      pfq_pos, lpBiuStates[BIU_STATE_WAIT], wait_states);
-            else {
+            if (biu_wait) {
+                extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                              pfq_pos, lpBiuStates[BIU_STATE_WAIT], wait_states);
+            } else {
                 char temp[16] = { 0 };
 
                 sprintf(temp, lpBiuStates[biu_state], biu_cycles + 1);
-                pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                      pfq_pos, temp);
+                extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                              pfq_pos, temp);
             }
-        } else
-            pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                  pfq_pos, lpBiuStates[biu_state]);
+        } else {
+            extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                          pfq_pos, lpBiuStates[biu_state]);
+        }
     }
 }
 
@@ -458,8 +465,9 @@ do_wait(void)
     if (dma_wait_states > 0)
         dma_wait_states--;
 
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-        pclog("BIU: do_wait(): %i, %i\n", wait_states, dma_wait_states);
+    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+        extra_biu_log("BIU: do_wait(): %i, %i\n", wait_states, dma_wait_states);
+    }
 }
 
 static void
@@ -479,8 +487,9 @@ run_dma_cycle(void)
             break;
 #endif
         case DMA_STATE_TIMER:
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-                pclog("DREQ\n");
+            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+                extra_biu_log("DREQ\n");
+            }
             dma_state = DMA_STATE_DREQ;
             dma_state_length = 1;
             break;
@@ -514,9 +523,10 @@ run_dma_cycle(void)
 static void
 biu_cycle_idle(int type)
 {
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-        pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-              pfq_pos, lpBiuStates[type]);
+    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+        extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                      pfq_pos, lpBiuStates[type]);
+    }
 
     run_dma_cycle();
     cycles_forward(1);
@@ -565,8 +575,9 @@ do_bus_access(void)
                 break;
             case BUS_IO:
                 bus_do_io(io_type);
-                // if (cpu_state.eaaddr == 0x41)
-                    // pclog("I/O port 41h: First Tw: cycles = %i\n", cycles_ex);
+                // if (cpu_state.eaaddr == 0x41) {
+                    // extra_biu_log("I/O port 41h: First Tw: cycles = %i\n", cycles_ex);
+                // }
                 break;
             case BUS_MEM:
                 bus_do_mem(io_type);
@@ -719,8 +730,9 @@ biu_cycle(void)
 static void
 biu_eu_request(void)
 {
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-        pclog("biu_eu_request()\n");
+    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+        extra_biu_log("biu_eu_request()\n");
+    }
 
     switch (biu_state) {
         default:
@@ -778,11 +790,13 @@ biu_eu_request(void)
 void
 wait(int c)
 {
-    // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H))
-        // pclog("[%02X] wait(%i, %i)\n", opcode, c, bus); 
+    // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+        // extra_biu_log("[%02X] wait(%i, %i)\n", opcode, c, bus); 
+    // }
 
-    if (c < 0)
-        pclog("Negative cycles: %i!\n", c);
+    if (c < 0) {
+        extra_biu_log("Negative cycles: %i!\n", c);
+    }
 
     x808x_biu_log("[%04X:%04X] %02X %i cycles (%i)\n", CS, cpu_state.pc, opcode, c, bus);
 
@@ -971,8 +985,9 @@ writememw(uint32_t s, uint32_t a, uint16_t v)
 {
     uint32_t addr = s + a;
 
-    // if ((CS == 0xf000) && (cpu_state.pc == 0xf176))
-        // pclog("writememw(%08X, %08X, %04X): begin\n", s, a, v);
+    // if ((CS == 0xf000) && (cpu_state.pc == 0xf176)) {
+        // extra_biu_log("writememw(%08X, %08X, %04X): begin\n", s, a, v);
+    // }
 
     mem_seg  = s;
     mem_addr = a;
@@ -1067,9 +1082,9 @@ pfq_read(void)
 void
 biu_resume_on_queue_read(void)
 {
-    // pclog("biu_resume_on_queue_read(%i, %i)\n", pfq_pos, biu_state);
+    // extra_biu_log("biu_resume_on_queue_read(%i, %i)\n", pfq_pos, biu_state);
     if ((biu_next_state == BIU_STATE_IDLE) && (pfq_pos == 3))
-        pfq_switch_to_pf(0);
+        pfq_switch_to_pf((biu_next_state == BIU_STATE_EU) ? 3 : 0);
 }
 
 /* Fetches a byte from the prefetch queue, or from memory if the queue has
@@ -1083,7 +1098,7 @@ pfq_fetchb_common(void)
 {
     uint8_t temp;
 
-    // pclog("pfq_fetch_common(%i, %i, %i)\n", biu_queue_preload, pfq_pos, biu_state);
+    // extra_biu_log("pfq_fetch_common(%i, %i, %i)\n", biu_queue_preload, pfq_pos, biu_state);
 
     if (biu_queue_preload) {
         if (nx)
