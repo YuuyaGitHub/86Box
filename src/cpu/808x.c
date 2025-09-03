@@ -2135,9 +2135,40 @@ decode(void)
 static void
 string_op(int bits)
 {
+    uint8_t       tempb;
     uint16_t      tmpa;
+    uint16_t      old_ax;
+    uint16_t      tempw;
 
-    switch (opcode & 0x0e) {
+    if ((opcode & 0xf0) == 0x60)  switch (opcode & 0x0e) {
+        case 0x0c:
+            old_ax           = AX;
+            cpu_data         = DX;
+            cpu_state.eaaddr = cpu_data;
+            cpu_io(bits, 0, cpu_state.eaaddr);
+            cpu_data         = AX;
+            stos(bits);
+            AX               = old_ax;
+            break;
+        case 0x0e:
+            old_ax           = AX;
+            lods(bits);
+            if (bits == 16)
+                tempw            = cpu_data & 0xffff;
+            else
+                tempb            = cpu_data & 0xff;
+            cpu_data         = DX;
+            do_cycle_i();
+            /* biu_io_write_u16() */
+            cpu_state.eaaddr = cpu_data;
+            if (bits == 16)
+                cpu_data = tempw;
+            else
+                cpu_data = tempb;
+            cpu_io(bits, 1, cpu_state.eaaddr);
+            AX               = old_ax;
+            break;
+    } else  switch (opcode & 0x0e) {
         case 0x04:
             lods(bits);
             do_cycle_i();
@@ -2485,12 +2516,163 @@ execvx0_0f(void)
     in_0f = 0;
 }
 
-#ifdef UNUSED_VX0_FUNCTIONS
 static void
-execvx0_6x(void)
+execvx0_6x(uint16_t *jump)
 {
+    uint16_t orig_sp;
+    uint16_t lowbound;
+    uint16_t highbound;
+    uint16_t regval;
+    uint16_t wordtopush;
+    uint16_t immediate;
+    int      bits;
+
+    switch (opcode) {
+        case 0x60:    /* PUSHA/PUSH R */
+            orig_sp = SP;
+            push(&AX);
+            push(&CX);
+            push(&DX);
+            push(&BX);
+            push(&orig_sp);
+            push(&BP);
+            push(&SI);
+            push(&DI);
+            break;
+
+        case 0x61:    /* POPA/POP R */
+            do_cycles(8);
+            DI = pop();
+            SI = pop();
+            BP = pop();
+            (void) pop();    /* former orig_sp */
+            BX      = pop();
+            DX      = pop();
+            CX      = pop();
+            AX      = pop();
+            break;
+
+        case 0x62:    /* BOUND r/m */
+            lowbound  = 0;
+            highbound = 0;
+            regval    = 0;
+
+            lowbound  = readmemw(easeg, cpu_state.eaaddr);
+            highbound = readmemw(easeg, cpu_state.eaaddr + 2);
+            regval    = get_reg(cpu_reg);
+
+            if ((lowbound > regval) || (highbound < regval)) {
+                sw_int(5);
+                *jump = 1;
+            }
+            break;
+
+        case 0x64:
+        case 0x65:
+            if (is_nec) {
+                /* REPC/REPNC */
+                in_rep     = (opcode == 0x64 ? 1 : 2);
+                rep_c_flag = 1;
+                completed  = 0;
+            } else {
+                do_cycles_nx_i(2);    /* Guess, based on NOP. */
+            }
+            break;
+
+        case 0x68:
+            wordtopush = pfq_fetchw();
+            push(&wordtopush);
+            break;
+
+        case 0x69:
+            immediate = 0;
+            bits      = 16;
+            read_ea(0, 16);
+            immediate = pfq_fetchw();
+            mul(cpu_data & 0xffff, immediate);
+            set_reg(cpu_reg, cpu_data);
+            set_co_mul(16, cpu_dest != 0);
+            break;
+
+        case 0x6a:
+            wordtopush = sign_extend(pfq_fetchb());
+            push(&wordtopush);
+            break;
+
+        case 0x6b:    /* IMUL reg16,reg16/mem16,imm8 */
+            immediate = 0;
+            bits      = 16;
+            read_ea(0, 16);
+            immediate = pfq_fetchb();
+            mul(cpu_data & 0xffff, immediate);
+            set_reg(cpu_reg, cpu_data);
+            set_co_mul(16, cpu_dest != 0);
+            break;
+
+        case 0x6c:
+        case 0x6d: /* INM dst, DW/INS dst, DX */
+            bits = 8 << (opcode & 1);
+            if (rep_start()) {
+                string_op(bits);
+                do_cycle_i();
+
+                if (in_rep != 0) {
+                    completed = 0;
+                    repeating = 1;
+
+                    do_cycle_i();
+                    if (irq_pending()) {
+                        do_cycle_i();
+                        rep_interrupt();
+                    }
+
+                    do_cycle_i();
+                    /* decrement_register16() */
+                    CX--;
+                    if (CX == 0)
+                        rep_end();
+                    else
+                        do_cycle_i();
+                } else
+                    do_cycle_i();
+            }
+            break;
+
+        case 0x6e:
+        case 0x6f: /* OUTM DW, src/OUTS DX, src */
+            bits = 8 << (opcode & 1);
+            if (rep_start()) {
+                string_op(bits);
+                do_cycles_i(3);
+
+                if (in_rep != 0) {
+                    completed = 0;
+                    repeating = 1;
+
+                    do_cycle_i();
+                    /* decrement_register16() */
+                    CX--;
+
+                    if (irq_pending()) {
+                        do_cycles_i(2);
+                        rep_interrupt();
+                    } else {
+                        do_cycles_i(2);
+
+                        if (CX == 0)
+                            rep_end();
+                        else
+                            do_cycle_i();
+                    }
+                }
+            }
+            break;
+
+        default:
+            do_cycles_nx_i(2);    /* Guess, based on NOP. */
+            break;
+    }
 }
-#endif
 
 /* Executes a single instruction. */
 void
@@ -2537,8 +2719,15 @@ execute_instruction(void)
         extra_eu_log("execute_instruction(); actual instruction begin\n");
     }
 
-    if (is_nec && in_0f)
+    if (is_nec && !(cpu_state.flags & MD_FLAG)) {
+        i8080_step(&emulated_processor);
+        set_if(emulated_processor.iff);
+        do_cycles(emulated_processor.cyc);
+        emulated_processor.cyc = 0;
+    } else if (is_nec && in_0f)
         execvx0_0f();
+    else if (is_nec && ((opcode & 0xf0) == 0x60))
+        execvx0_6x(&jump);
     else  switch (opcode) {
         case 0x00: /* ADD r/m8, r8; r8, r/m8; al, imm8 */
         case 0x02:
