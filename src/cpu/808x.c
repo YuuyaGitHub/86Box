@@ -121,38 +121,104 @@
 
 typedef int (*OpFn)(uint32_t fetchdat);
 
-const uint8_t opf[256] = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 00 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 08 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 10 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 18 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 20 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 28 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 30 */
-                           OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 38 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 40 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 48 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 50 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 58 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 60 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 68 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 70 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 78 */
-                           OP_GRP, OP_GRP, OP_GRP, OP_GRP, OP_MEA, OP_MEA, OP_MEA, OP_MEA,   /* 80 */
-                           OP_MRM, OP_MRM, OP_MEA, OP_MEA, OP_MRM, OP_MRM, OP_MEA, OP_MRM,   /* 88 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 90 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* 98 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* A0 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* A8 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* B0 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* B8 */
-                           0,      0,           0,      0, OP_MEA, OP_MEA, OP_MRM, OP_MRM,   /* C0 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* C8 */
-                           OP_GRP, OP_GRP, OP_GRP, OP_GRP,      0,      0,      0,      0,   /* D0 */
-                           OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM,   /* D8 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* E0 */
-                           0,      0,           0,      0,      0,      0,      0,      0,   /* E8 */
-                           OP_PRE, OP_PRE,      OP_PRE, OP_PRE, 0,      0, OP_GRP, OP_GRP,   /* F0 */
-                           0,      0,           0,      0,      0,      0, OP_GRP, OP_GRP }; /* F8 */
+const uint8_t opf[256]     = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 00 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 08 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 10 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 18 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 20 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 28 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 30 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 38 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 40 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 48 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 50 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 58 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 60 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 68 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 70 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 78 */
+                               OP_GRP, OP_GRP, OP_GRP, OP_GRP, OP_MEA, OP_MEA, OP_MEA, OP_MEA,   /* 80 */
+                               OP_MRM, OP_MRM, OP_MEA, OP_MEA, OP_MRM, OP_MRM, OP_MEA, OP_MRM,   /* 88 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 90 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 98 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B8 */
+                                    0,      0,      0,      0, OP_MEA, OP_MEA, OP_MRM, OP_MRM,   /* C0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* C8 */
+                               OP_GRP, OP_GRP, OP_GRP, OP_GRP,      0,      0,      0,      0,   /* D0 */
+                               OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM,   /* D8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E8 */
+                               OP_PRE, OP_PRE,      OP_PRE, OP_PRE, 0,      0, OP_GRP, OP_GRP,   /* F0 */
+                                    0,      0,      0,      0,      0,      0, OP_GRP, OP_GRP }; /* F8 */
+
+const uint8_t opf_nec[256] = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 00 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0, OP_PRE,   /* 08 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 10 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 18 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 20 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 28 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 30 */
+                               OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0, OP_PRE,      0,   /* 38 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 40 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 48 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 50 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 58 */
+                                    0,      0, OP_MRM,      0,      0,      0,      0,      0,   /* 60 */
+                                    0, OP_MRM,      0, OP_MRM,      0,      0,      0,      0,   /* 68 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 70 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 78 */
+                               OP_GRP, OP_GRP, OP_GRP, OP_GRP, OP_MEA, OP_MEA, OP_MEA, OP_MEA,   /* 80 */
+                               OP_MRM, OP_MRM, OP_MEA, OP_MEA, OP_MRM, OP_MRM, OP_MEA, OP_MRM,   /* 88 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 90 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 98 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B8 */
+                               OP_GRP, OP_GRP,      0,      0, OP_MEA, OP_MEA, OP_MRM, OP_MRM,   /* C0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* C8 */
+                               OP_GRP, OP_GRP, OP_GRP, OP_GRP,      0,      0,      0,      0,   /* D0 */
+                               OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM,   /* D8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E8 */
+                               OP_PRE, OP_PRE,      OP_PRE, OP_PRE, 0,      0, OP_GRP, OP_GRP,   /* F0 */
+                                    0,      0,      0,      0,      0,      0, OP_GRP, OP_GRP }; /* F8 */
+
+const uint8_t opf_0f[256]  = {      0,      0,      0,      0,      0,      0,      0,      0,   /* 00 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 08 */
+                               OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM,   /* 10 */
+                               OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM, OP_MRM,   /* 18 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 20 */
+                               OP_MRM,      0, OP_MRM,      0,      0,      0,      0,      0,   /* 28 */
+                               OP_MRM,      0, OP_MRM,      0,      0,      0,      0,      0,   /* 30 */
+                               OP_MRM,      0, OP_MRM,      0,      0,      0,      0,      0,   /* 38 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 40 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 48 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 50 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 58 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 60 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 68 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 70 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 78 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 80 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 88 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 90 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* 98 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* A8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* B8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* C0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* C8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* D0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* D8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* E8 */
+                                    0,      0,      0,      0,      0,      0,      0,      0,   /* F0 */
+                                    0,      0,      0,      0,      0,      0,      0,      0 }; /* F8 */
 
 uint8_t            use_custom_nmi_vector = 0;
 
@@ -179,6 +245,7 @@ static int         tempc_fpu             = 0;
 static int         started               = 0;
 static int         group_delay           = 0;
 static int         modrm_loaded          = 0;
+static int         in_0f                 = 0;
 
 static uint32_t *  ovr_seg               = NULL;
 
@@ -527,7 +594,6 @@ C18:
 static void
 load_cs(uint16_t seg)
 {
-    // extra_eu_log("CS = %04X\n", seg);
     cpu_state.seg_cs.base = seg << 4;
     cpu_state.seg_cs.seg  = seg & 0xffff;
 }
@@ -542,6 +608,7 @@ load_seg(uint16_t seg, x86seg *s)
 void
 reset_808x(int hard)
 {
+    in_0f      = 0;
     in_rep     = 0;
     in_lock    = 0;
     completed  = 1;
@@ -1487,6 +1554,7 @@ interrupt(uint16_t addr)
     set_ip(new_ip);
     push(&old_ip);
 }
+#endif
 
 /* Ditto, but for breaking into emulation mode. */
 static void
@@ -1518,7 +1586,6 @@ interrupt_brkem(uint16_t addr)
     sync_to_i8080();
     x808x_log("BRKEM mode\n");
 }
-#endif
 
 void
 retem_i8080(void)
@@ -1934,13 +2001,6 @@ finalize(void)
         clear_lock = 1;
     cpu_alu_op = 0;
 
-#if 0
-    if (irq_pending()) {
-        nx = 0;
-        return;
-    }
-#endif
-
     if (pfq_pos == 0) {
         do {
             if (nx)
@@ -1961,7 +2021,6 @@ finalize(void)
 
     if (irq_pending())
         cpu_state.pc--;
-    // extra_eu_log("finalize(): biu_queue_preload = %i\n", biu_queue_preload);
 }
 
 /* Fetches the effective address from the prefetch queue according to MOD and R/M. */
@@ -2008,8 +2067,6 @@ decode(void)
     uint8_t op_f;
     uint8_t prefix = 0;
 
-    // if (((CS != 0xffff) || (cpu_state.pc != 0x0000)) && completed && !biu_queue_preload)
-        // fatal("[%04X:%04X] No preload with completed instruction\n", CS, cpu_state.pc);
     opcode  = pfq_fetchb_common();
 
     modrm_loaded = 0;
@@ -2121,6 +2178,320 @@ string_op(int bits)
 
 static int do_print = 1;
 
+static void
+execvx0_0f(void)
+{
+    uint8_t  bit;
+    uint8_t  odd;
+    uint8_t  nibbles_count;
+    uint8_t  destcmp;
+    uint8_t  destbyte;
+    uint8_t  srcbyte;
+    uint8_t  nibble_result;
+    uint8_t  temp_val;
+    uint8_t  temp_al;
+    uint8_t  bit_length;
+    uint8_t  bit_offset;
+    int8_t   nibble_result_s;
+    int      bits;
+    uint32_t i;
+    uint32_t carry;
+    uint32_t nibble;
+    uint32_t srcseg;
+    uint32_t byteaddr;
+
+    switch (opcode) {
+        case 0x10:    /* TEST1 r8/m8, CL*/
+        case 0x11:    /* TEST1 r16/m16, CL*/
+        case 0x18:    /* TEST1 r8/m8, imm3 */
+        case 0x19:    /* TEST1 r16/m16, imm4 */
+            bits = 8 << (opcode & 0x1);
+            do_cycles(2);
+
+            bit = (opcode & 0x8) ? pfq_fetchb() : CL;
+            bit &= ((1 << (3 + (opcode & 0x1))) - 1);
+            read_ea(0, bits);
+
+            set_zf_ex(!(cpu_data & (1 << bit)));
+            cpu_state.flags &= ~(V_FLAG | C_FLAG);
+            break;
+
+        case 0x12:    /* CLR1 r8/m8, CL*/
+        case 0x13:    /* CLR1 r16/m16, CL*/
+        case 0x1a:    /* CLR1 r8/m8, imm3 */
+        case 0x1b:    /* CLR1 r16/m16, imm4 */
+            bits = 8 << (opcode & 0x1);
+            do_cycles(2);
+
+            bit = (opcode & 0x8) ? pfq_fetchb() : CL;
+            bit &= ((1 << (3 + (opcode & 0x1))) - 1);
+            read_ea(0, bits);
+
+            if (bits == 8)
+                seteab((cpu_data & 0xff) & ~(1 << bit));
+            else
+                seteaw((cpu_data & 0xffff) & ~(1 << bit));
+            break;
+
+        case 0x14:    /* SET1 r8/m8, CL*/
+        case 0x15:    /* SET1 r16/m16, CL*/
+        case 0x1c:    /* SET1 r8/m8, imm3 */
+        case 0x1d:    /* SET1 r16/m16, imm4 */
+            bits = 8 << (opcode & 0x1);
+            do_cycles(2);
+
+            bit = (opcode & 0x8) ? pfq_fetchb() : CL;
+            bit &= ((1 << (3 + (opcode & 0x1))) - 1);
+            read_ea(0, bits);
+
+            if (bits == 8)
+                seteab((cpu_data & 0xff) | (1 << bit));
+            else
+                seteaw((cpu_data & 0xffff) | (1 << bit));
+            break;
+
+        case 0x16:    /* NOT1 r8/m8, CL*/
+        case 0x17:    /* NOT1 r16/m16, CL*/
+        case 0x1e:    /* NOT1 r8/m8, imm3 */
+        case 0x1f:    /* NOT1 r16/m16, imm4 */
+            bits = 8 << (opcode & 0x1);
+            do_cycles(2);
+
+            bit = (opcode & 0x8) ? (pfq_fetchb()) : (CL);
+            bit &= ((1 << (3 + (opcode & 0x1))) - 1);
+            read_ea(0, bits);
+
+            if (bits == 8)
+                seteab((cpu_data & 0xff) ^ (1 << bit));
+            else
+                seteaw((cpu_data & 0xffff) ^ (1 << bit));
+            break;
+
+        case 0x20:    /* ADD4S */
+            odd           = !!(CL % 2);
+            zero          = 1;
+            nibbles_count = CL - odd;
+            i             = 0;
+            carry         = 0;
+            nibble        = 0;
+            srcseg        = ovr_seg ? *ovr_seg : ds;
+
+            do_cycles(4);
+
+            for (i = 0; i < ((nibbles_count / 2) + odd); i++) {
+                do_cycles(19);
+                destcmp = read_mem_b((es) + DI + i);
+
+                for (nibble = 0; nibble < 2; nibble++) {
+                    destbyte = destcmp >> (nibble ? 4 : 0);
+                    srcbyte  = read_mem_b(srcseg + SI + i) >> (nibble ? 4 : 0);
+                    destbyte &= 0xF;
+                    srcbyte &= 0xF;
+                    nibble_result = (i == (nibbles_count / 2) && nibble == 1) ? (destbyte + carry) :
+                                    ((uint8_t) (destbyte)) + ((uint8_t) (srcbyte)) + ((uint32_t) carry);
+                    carry         = 0;
+
+                    while (nibble_result >= 10) {
+                        nibble_result -= 10;
+                        carry++;
+                    }
+
+                    if (zero != 0 || (i == (nibbles_count / 2) && nibble == 1))
+                        zero = (nibble_result == 0);
+
+                    destcmp = ((destcmp & (nibble ? 0x0F : 0xF0)) | (nibble_result << (4 * nibble)));
+                }
+
+                write_mem_b(es + DI + i, destcmp);
+            }
+
+            set_cf(!!carry);
+            set_zf(!!zero);
+            break;
+
+        case 0x22:    /* SUB4S */
+            odd           = !!(CL % 2);
+            zero          = 1;
+            nibbles_count = CL - odd;
+            i             = 0;
+            carry         = 0;
+            nibble        = 0;
+            srcseg        = ovr_seg ? *ovr_seg : ds;
+
+            do_cycles(4);
+
+            for (i = 0; i < ((nibbles_count / 2) + odd); i++) {
+                do_cycles(19);
+                destcmp = read_mem_b((es) + DI + i);
+
+                for (nibble = 0; nibble < 2; nibble++) {
+                    destbyte = destcmp >> (nibble ? 4 : 0);
+                    srcbyte  = read_mem_b(srcseg + SI + i) >> (nibble ? 4 : 0);
+                    destbyte &= 0xF;
+                    srcbyte &= 0xF;
+                    nibble_result_s = (i == (nibbles_count / 2) && nibble == 1) ? ((int8_t) destbyte - (int8_t) carry) :
+                                      ((int8_t) (destbyte)) - ((int8_t) (srcbyte)) - ((int8_t) carry);
+                    carry           = 0;
+
+                    while (nibble_result_s < 0) {
+                        nibble_result_s += 10;
+                        carry++;
+                    }
+
+                    if (zero != 0 || (i == (nibbles_count / 2) && nibble == 1))
+                        zero = (nibble_result_s == 0);
+
+                    destcmp = ((destcmp & (nibble ? 0x0F : 0xF0)) | (nibble_result_s << (4 * nibble)));
+                }
+
+                write_mem_b(es + DI + i, destcmp);
+            }
+
+            set_cf(!!carry);
+            set_zf(!!zero);
+            break;
+
+        case 0x26:    /* CMP4S */
+            odd           = !!(CL % 2);
+            zero          = 1;
+            nibbles_count = CL - odd;
+            i             = 0;
+            carry         = 0;
+            nibble        = 0;
+            srcseg        = ovr_seg ? *ovr_seg : ds;
+
+            do_cycles(4);
+
+            for (i = 0; i < ((nibbles_count / 2) + odd); i++) {
+                do_cycles(19);
+                destcmp = read_mem_b((es) + DI + i);
+
+                for (nibble = 0; nibble < 2; nibble++) {
+                    destbyte = destcmp >> (nibble ? 4 : 0);
+                    srcbyte  = read_mem_b(srcseg + SI + i) >> (nibble ? 4 : 0);
+                    destbyte &= 0xF;
+                    srcbyte &= 0xF;
+                    nibble_result_s = ((int8_t) (destbyte)) - ((int8_t) (srcbyte)) - ((int8_t) carry);
+                    carry           = 0;
+
+                    while (nibble_result_s < 0) {
+                        nibble_result_s += 10;
+                        carry++;
+                    }
+
+                    if (zero != 0 || (i == (nibbles_count / 2) && nibble == 1))
+                        zero = (nibble_result_s == 0);
+
+                    destcmp = ((destcmp & (nibble ? 0x0F : 0xF0)) | (nibble_result_s << (4 * nibble)));
+                }
+            }
+
+            set_cf(!!carry);
+            set_zf(!!zero);
+            break;
+
+        case 0x28:    /* ROL4 r/m */
+            do_cycles(20);
+
+            temp_val = geteab();
+            temp_al  = AL;
+
+            temp_al &= 0x0f;
+            temp_al |= (temp_val & 0xf0);
+            temp_val = (temp_al & 0x0f) | ((temp_val & 0x0f) << 4);
+            temp_al >>= 4;
+            temp_al &= 0x0f;
+            seteab(temp_val);
+            AL = temp_al;
+            break;
+
+        case 0x2a:    /* ROR4 r/m */
+            do_cycles(20);
+
+            temp_val = geteab();
+            temp_al  = AL;
+
+            AL       = temp_val & 0x0f;
+            temp_val = (temp_val >> 4) | ((temp_al & 0x0f) << 4);
+
+            seteab(temp_val);
+            break;
+
+        case 0x31:    /* INS reg1, reg2 */
+        case 0x39:    /* INS reg8, imm4 */
+            bit_length = ((opcode & 0x8) ? (pfq_fetchb() & 0x0f) : (getr8(cpu_reg) & 0x0f)) + 1;
+            bit_offset = getr8(cpu_rm) & 0x0f;
+            byteaddr   = (es) + DI;
+            i          = 0;
+
+            if (bit_offset >= 8) {
+                DI++;
+                byteaddr++;
+                bit_offset -= 8;
+            }
+
+            for (i = 0; i < bit_length; i++) {
+                byteaddr = (es) + DI;
+                writememb(es, DI, (read_mem_b(byteaddr) & ~(1 << (bit_offset))) | ((!!(AX & (1 << i))) << bit_offset));
+                bit_offset++;
+
+                if (bit_offset == 8) {
+                    DI++;
+                    bit_offset = 0;
+                }
+            }
+
+            setr8(cpu_rm, bit_offset);
+            break;
+
+        case 0x33:    /* EXT reg1, reg2 */
+        case 0x3b:    /* EXT reg8, imm4 */
+            bit_length = ((opcode & 0x8) ? (pfq_fetchb() & 0x0f) : (getr8(cpu_reg) & 0x0f)) + 1;
+            bit_offset = getr8(cpu_rm) & 0x0f;
+            byteaddr   = (ds) + SI;
+            i          = 0;
+
+            if (bit_offset >= 8) {
+                SI++;
+                byteaddr++;
+                bit_offset -= 8;
+            }
+
+            AX = 0;
+
+            for (i = 0; i < bit_length; i++) {
+                byteaddr = (ds) + SI;
+                AX |= (!!(readmemb(ds, SI) & (1 << bit_offset))) << i;
+                bit_offset++;
+
+                if (bit_offset == 8) {
+                    SI++;
+                    bit_offset = 0;
+                }
+            }
+
+            setr8(cpu_rm, bit_offset);
+            break;
+
+        case 0xff:    /* BRKEM */
+            interrupt_brkem(pfq_fetchb());
+            break;
+
+        default:
+            do_cycles_nx_i(2);    /* Guess, based on NOP. */
+            break;
+    }
+
+    in_0f = 0;
+}
+
+#ifdef UNUSED_VX0_FUNCTIONS
+static void
+execvx0_6x(void)
+{
+}
+#endif
+
 /* Executes a single instruction. */
 void
 execute_instruction(void)
@@ -2166,7 +2537,9 @@ execute_instruction(void)
         extra_eu_log("execute_instruction(); actual instruction begin\n");
     }
 
-    switch (opcode) {
+    if (is_nec && in_0f)
+        execvx0_0f();
+    else  switch (opcode) {
         case 0x00: /* ADD r/m8, r8; r8, r/m8; al, imm8 */
         case 0x02:
         case 0x04:
@@ -2195,7 +2568,6 @@ execute_instruction(void)
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
-                // do_mod_rm();
                 if (cpu_mod != 3)
                     do_cycles_i(2);    /* load_operand() */
                 tempw      = get_ea();
@@ -2259,7 +2631,6 @@ execute_instruction(void)
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
-                // do_mod_rm();
                 if (cpu_mod != 3)
                     do_cycles_i(2);    /* load_operand() */
                 if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
@@ -2324,10 +2695,7 @@ execute_instruction(void)
             break;
 
         case 0x0f:
-            if (is_nec) {
-                // execvx0_0f();
-                fatal("execvx0_0f() not yet implemented\n");
-            } else {
+            if (!is_nec) {
                 load_cs(pop());
                 /* All POP segment instructions suppress interrupts for one instruction. */
                 noint = 1;
@@ -2364,7 +2732,6 @@ execute_instruction(void)
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
-                // do_mod_rm();
                 if (cpu_mod != 3)
                     do_cycles_i(2);    /* load_operand() */
                 tempw      = get_ea();
@@ -3589,7 +3956,6 @@ execute_instruction(void)
 
         case 0xf6: /* Miscellaneuous Opcode Extensions, r/m8, imm8 */
             bits = 8;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             negate = !!in_rep;
