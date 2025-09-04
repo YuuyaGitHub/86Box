@@ -2104,7 +2104,13 @@ decode(void)
         opcode  = pfq_fetchb_common();
     }
 
-    op_f = (uint8_t) opf[opcode];
+    if (is_nec) {
+        if (in_0f)
+            op_f = (uint8_t) opf_0f[opcode];
+        else
+            op_f = (uint8_t) opf_nec[opcode];
+    } else
+        op_f = (uint8_t) opf[opcode];
 
     if (op_f & OP_GRP) {
         do_mod_rm();
