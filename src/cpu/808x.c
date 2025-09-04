@@ -2132,7 +2132,7 @@ decode(void)
         modrm_loaded = 1;
     }
 
-    if (modrm_loaded && !(op_f & OP_EA)) {
+    if (!is_nec && modrm_loaded && !(op_f & OP_EA)) {
         if (opcode == 0x8f) {
             if (cpu_mod == 3)
                do_cycles_i(2);
