@@ -244,8 +244,8 @@ pfq_schedule(void)
     } else {
         if (pfq_pos == 3) {
             biu_next_state = BIU_STATE_DELAY;
-            biu_state_length = 3;
-            biu_state_total_len = 3;
+            biu_state_length = is_nec ? 0 : 3;
+            biu_state_total_len = is_nec ? 0 : 3;
         } else
             biu_next_state = BIU_STATE_PF;
     }
@@ -746,7 +746,7 @@ biu_eu_request(void)
         case BIU_STATE_IDLE:
         case BIU_STATE_SUSP:
             /* Resume it - 3 cycles. */
-            for (uint8_t i = 0; i < 3; i++)
+            if (!is_nec)  for (uint8_t i = 0; i < 3; i++)
                 biu_cycle_idle(biu_state);
             break;
         case BIU_STATE_DELAY:
@@ -771,7 +771,7 @@ biu_eu_request(void)
                        biu_cycle();
                     while (BUS_CYCLE != BUS_T1); 
                     /* The two abort cycles. */
-                    for (uint8_t i = 0; i < 2; i++)
+                    if (!is_nec)  for (uint8_t i = 0; i < 2; i++)
                         biu_cycle_idle(BIU_STATE_IDLE);
                     break;
 
@@ -1084,7 +1084,7 @@ biu_resume_on_queue_read(void)
 {
     // extra_biu_log("biu_resume_on_queue_read(%i, %i)\n", pfq_pos, biu_state);
     if ((biu_next_state == BIU_STATE_IDLE) && (pfq_pos == 3))
-        pfq_switch_to_pf((biu_next_state == BIU_STATE_EU) ? 3 : 0);
+        pfq_switch_to_pf((biu_next_state == BIU_STATE_EU) ? (is_nec ? 0 : 3) : 0);
 }
 
 /* Fetches a byte from the prefetch queue, or from memory if the queue has
@@ -1187,7 +1187,7 @@ biu_queue_flush(void)
 
     /* FLUSH command. */
     if ((biu_state == BIU_STATE_SUSP) || (biu_state == BIU_STATE_IDLE))
-        pfq_resume(3);
+        pfq_resume(is_nec ? 0 : 3);
 }
 
 static void
