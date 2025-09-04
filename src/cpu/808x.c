@@ -1177,6 +1177,8 @@ intr_routine(uint16_t intr, int skip_first)
     do_cycles_i(2);
     push(&tempf);
     cpu_state.flags &= ~(I_FLAG | T_FLAG);
+    if (is_nec)
+        cpu_state.flags |= MD_FLAG;
     do_cycle_i();
 
     farcall2(new_cs, new_ip);
@@ -1472,6 +1474,11 @@ sw_int(uint16_t intr)
     uint16_t new_ip;
     uint16_t old_ip;
 
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     do_cycles_i(3);
     cpu_state.eaaddr = vector & 0xffff;
     new_ip           = readmemw(0, cpu_state.eaaddr);
@@ -1483,6 +1490,8 @@ sw_int(uint16_t intr)
     do_cycles_i(2);
     push(&tempf);
     cpu_state.flags &= ~(I_FLAG | T_FLAG);
+    if (is_nec)
+        cpu_state.flags |= MD_FLAG;
 
     /* FARCALL2 */
     do_cycles_i(4);
@@ -1519,70 +1528,42 @@ int_o(void)
 }
 #endif
 
-#ifdef UNUSED_8080_FUNCTIONS
-/* Calls an interrupt. */
-static void
-interrupt(uint16_t addr)
-{
-    uint16_t old_cs, old_ip;
-    uint16_t new_cs, new_ip;
-    uint16_t tempf;
-
-    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
-        sync_from_i8080();
-        x808x_log("CALLN/INT#/NMI#\n");
-    }
-
-    addr <<= 2;
-    cpu_state.eaaddr = addr;
-    old_cs           = CS;
-    new_ip = readmemw(0, cpu_state.eaaddr);
-    do_cycles(1);
-    cpu_state.eaaddr = (cpu_state.eaaddr + 2) & 0xffff;
-    new_cs      = readmemw(0, cpu_state.eaaddr);
-    biu_suspend_fetch();
-    biu_queue_flush();
-    ovr_seg = NULL;
-    tempf = cpu_state.flags & (is_nec ? 0x8fd7 : 0x0fd7);
-    push(&tempf);
-    cpu_state.flags &= ~(I_FLAG | T_FLAG);
-    if (is_nec)
-        cpu_state.flags |= MD_FLAG;
-    push(&old_cs);
-    old_ip = cpu_state.pc;
-    load_cs(new_cs);
-    set_ip(new_ip);
-    push(&old_ip);
-}
-#endif
-
 /* Ditto, but for breaking into emulation mode. */
 static void
 interrupt_brkem(uint16_t addr)
 {
-    uint16_t old_cs, old_ip;
-    uint16_t new_cs, new_ip;
-    uint16_t tempf;
+    uint16_t tempf = cpu_state.flags & (is_nec ? 0x8fd7 : 0x0fd7);
+    uint16_t new_cs;
+    uint16_t new_ip;
+    uint16_t old_ip;
 
-    addr <<= 2;
+    do_cycles_i(3);
     cpu_state.eaaddr = addr;
-    old_cs           = CS;
-    new_ip = readmemw(0, cpu_state.eaaddr);
-    do_cycles(1);
+    new_ip           = readmemw(0, cpu_state.eaaddr);
+    do_cycle_i();
     cpu_state.eaaddr = (cpu_state.eaaddr + 2) & 0xffff;
-    new_cs      = readmemw(0, cpu_state.eaaddr);
+    new_cs           = readmemw(0, cpu_state.eaaddr);
+
     biu_suspend_fetch();
-    biu_queue_flush();
-    ovr_seg = NULL;
-    tempf = cpu_state.flags & (is_nec ? 0x8fd7 : 0x0fd7);
+    do_cycles_i(2);
     push(&tempf);
     cpu_state.flags      &= ~(MD_FLAG);
     cpu_md_write_disable  = 0;
-    push(&old_cs);
-    old_ip = cpu_state.pc;
+
+    /* FARCALL2 */
+    do_cycles_i(4);
+    push(&CS);
     load_cs(new_cs);
+    do_cycle_i();
+
+    /* NEARCALL */
+    old_ip = cpu_state.pc & 0xffff;
+    do_cycles_i(2);
     set_ip(new_ip);
+    biu_queue_flush();
+    do_cycles_i(3);
     push(&old_ip);
+
     sync_to_i8080();
     x808x_log("BRKEM mode\n");
 }
@@ -1622,6 +1603,11 @@ custom_nmi(void)
     uint16_t new_cs;
     uint16_t new_ip;
 
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     do_cycle_i();
     do_cycles_i(2);
 
@@ -1637,6 +1623,8 @@ custom_nmi(void)
     do_cycles_i(2);
     push(&tempf);
     cpu_state.flags &= ~(I_FLAG | T_FLAG);
+    if (is_nec)
+        cpu_state.flags |= MD_FLAG;
     do_cycle_i();
 
     farcall2(new_cs, new_ip);
@@ -1669,6 +1657,11 @@ bus_pic_ack(void)
 static void
 hw_int(uint16_t vector)
 {
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     biu_suspend_fetch();
     do_cycles_i(2);
 
@@ -1678,6 +1671,11 @@ hw_int(uint16_t vector)
 static void
 int1(void)
 {
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     do_cycles_i(2);
     intr_routine(1, 1);
 }
@@ -1685,6 +1683,11 @@ int1(void)
 static void
 int2(void)
 {
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     do_cycles_i(2);
     intr_routine(2, 1);
 }
