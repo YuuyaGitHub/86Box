@@ -2723,6 +2723,9 @@ execute_instruction(void)
         extra_eu_log("execute_instruction(); actual instruction begin\n");
     }
 
+    if (!is_nec && (opcode >= 0xc0) && (opcode <= 0xc1))
+        opcode |= 0x02;
+
     if (is_nec && !(cpu_state.flags & MD_FLAG)) {
         i8080_step(&emulated_processor);
         set_if(emulated_processor.iff);
@@ -3554,8 +3557,108 @@ execute_instruction(void)
             cpu_state.regs[opcode & 0x07].w = tempw;
             break;
 
-        case 0xc0: /* RETN imm16 */
-        case 0xc2:
+        case 0xc0: /* rot imm8 */
+        case 0xc1:
+            /* rot rm */
+            bits = 8 << (opcode & 1);
+            if (cpu_mod != 3)
+                do_cycles_i(2);    /* load_operand() */
+            /* read_operand() */
+            cpu_data = get_ea();
+            cpu_src = pfq_fetchb();
+            if (is186 && !is_nec)
+                cpu_src &= 0x1F;
+            do_cycles_i(6);
+            if (cpu_src > 0) {
+                for (uint8_t i = 0; i < cpu_src; i++)
+                    do_cycles_i(4);
+            }
+            if (cpu_mod != 3)
+                 do_cycle_i();
+            /* bitshift_op() */
+            while (cpu_src != 0) {
+                cpu_dest = cpu_data;
+                oldc     = cpu_state.flags & C_FLAG;
+                switch (rmdat & 0x38) {
+                    case 0x00: /* ROL */
+                        set_cf(top_bit(cpu_data, bits));
+                        cpu_data <<= 1;
+                        cpu_data |= ((cpu_state.flags & C_FLAG) ? 1 : 0);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        break;
+                    case 0x08: /* ROR */
+                        set_cf((cpu_data & 1) != 0);
+                        cpu_data >>= 1;
+                        if (cpu_state.flags & C_FLAG)
+                            cpu_data |= (!(opcode & 1) ? 0x80 : 0x8000);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        break;
+                    case 0x10: /* RCL */
+                        set_cf(top_bit(cpu_data, bits));
+                        cpu_data = (cpu_data << 1) | (oldc ? 1 : 0);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        break;
+                    case 0x18: /* RCR */
+                        set_cf((cpu_data & 1) != 0);
+                         cpu_data >>= 1;
+                        if (oldc)
+                            cpu_data |= (!(opcode & 0x01) ? 0x80 : 0x8000);
+                        set_cf((cpu_dest & 1) != 0);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        break;
+                    case 0x20: /* SHL */
+                        set_cf(top_bit(cpu_data, bits));
+                        cpu_data <<= 1;
+                        set_of_rotate(bits);
+                        set_af((cpu_data & 0x10) != 0);
+                        set_pzs(bits);
+                        break;
+                    case 0x28: /* SHR */
+                        set_cf((cpu_data & 1) != 0);
+                        cpu_data >>= 1;
+                        set_of_rotate(bits);
+                        set_af(0);
+                        set_pzs(bits);
+                        break;
+                    case 0x30: /* SETMO - undocumented? */
+                        bitwise(bits, 0xffff);
+                        set_cf(0);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        set_pzs(bits);
+                        break;
+                    case 0x38: /* SAR */
+                        set_cf((cpu_data & 1) != 0);
+                        cpu_data >>= 1;
+                        if (!(opcode & 1))
+                            cpu_data |= (cpu_dest & 0x80);
+                        else
+                            cpu_data |= (cpu_dest & 0x8000);
+                        set_of_rotate(bits);
+                        set_af(0);
+                        set_pzs(bits);
+                        break;
+
+                    default:
+                        break;
+                }
+                --cpu_src;
+            }
+
+            if (opcode <= 0xd1) {
+                if (cpu_mod != 3)
+                    do_cycle_i();
+            }
+
+            /* write_operand() */
+            set_ea(cpu_data);
+            break;
+
+        case 0xc2: /* RETN imm16 */
             bits = 8;
             cpu_src = pfq_fetchw();
             do_cycle_i();
@@ -3573,8 +3676,7 @@ execute_instruction(void)
             jump = 1;
             break;
 
-        case 0xc1: /* RETN */
-        case 0xc3:
+        case 0xc3: /* RETN */
             bits = 8;
             new_ip = pop();
             biu_suspend_fetch();
@@ -3702,7 +3804,6 @@ execute_instruction(void)
         case 0xd3: /* ROL, ROR, RCL, RCR, SHL, SHR, SAR:  r/m 16, cl */
             /* rot rm */
             bits = 8 << (opcode & 1);
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             /* read_operand() */
