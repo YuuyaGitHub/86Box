@@ -2078,6 +2078,12 @@ decode(void)
         prefix = 0;
 
         switch (opcode) {
+            case 0x0f: /* NEC/186 */
+                if (is_nec) {
+                    in_0f = 1;
+                    prefix = 1;
+                }
+                break;
             case 0x26: /* ES: */
             case 0x2e: /* CS: */
             case 0x36: /* SS: */
