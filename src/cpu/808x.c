@@ -166,7 +166,7 @@ const uint8_t opf_nec[256] = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,  
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 48 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 50 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 58 */
-                                    0,      0, OP_MRM,      0, OP_PRE, OP_PRE,      0,      0,   /* 60 */
+                                    0,      0, OP_MRM, OP_MRM, OP_PRE, OP_PRE, OP_MRM, OP_MRM,   /* 60 */
                                     0, OP_MRM,      0, OP_MEA,      0,      0,      0,      0,   /* 68 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 70 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 78 */
@@ -246,6 +246,7 @@ static int         started               = 0;
 static int         group_delay           = 0;
 static int         modrm_loaded          = 0;
 static int         in_0f                 = 0;
+static int         in_hlt                = 0;
 
 static uint32_t *  ovr_seg               = NULL;
 
@@ -608,6 +609,7 @@ load_seg(uint16_t seg, x86seg *s)
 void
 reset_808x(int hard)
 {
+    in_hlt     = 0;
     in_0f      = 0;
     in_rep     = 0;
     in_lock    = 0;
@@ -1636,7 +1638,7 @@ irq_pending(void)
     uint8_t temp;
 
     temp = (nmi && nmi_enable && nmi_mask) || ((cpu_state.flags & T_FLAG) && !noint) ||
-           ((cpu_state.flags & I_FLAG) && pic.int_pending && !noint);
+           ((in_hlt || (cpu_state.flags & I_FLAG)) && pic.int_pending && !noint);
 
     return temp;
 }
@@ -1714,7 +1716,7 @@ check_interrupts(void)
 #endif
             return;
         }
-        if ((cpu_state.flags & I_FLAG) && pic.int_pending && !noint) {
+        if ((in_hlt || (cpu_state.flags & I_FLAG)) && pic.int_pending && !noint) {
             repeating = 0;
             completed = 1;
             ovr_seg   = NULL;
@@ -1791,11 +1793,11 @@ rep_start(void)
     if (!repeating) {
         if (in_rep != 0) {
             if (CX == 0) {
-                do_cycles_i(4);
+                do_cycles_i(is_nec ? 1 : 4);
                 rep_end();
                 return 0;
             } else
-                do_cycles_i(7);
+                do_cycles_i(is_nec ? 1 : 7);
         }
     }
 
@@ -1842,11 +1844,12 @@ sign_extend_ax(void)
 static void
 reljmp(uint16_t new_ip, int jump)
 {
-    if (jump)
+    if (!is_nec && jump)
         do_cycle_i();
 
     biu_suspend_fetch();
-    do_cycles_i(3);
+    if (!is_nec)
+        do_cycles_i(3);
     set_ip(new_ip);
     biu_queue_flush();
     do_cycle_i();
@@ -2038,7 +2041,9 @@ do_mod_rm(void)
 
     if (cpu_mod != 3) {
         do_cycle();
-        if (modrm_cycs_pre[rmdat & 0xc7])
+        if (is_nec)
+           do_cycle();
+        else if (modrm_cycs_pre[rmdat & 0xc7])
             do_cycles(modrm_cycs_pre[rmdat & 0xc7]);
 
         if ((rmdat & 0xc7) == 0x06) {
@@ -2060,7 +2065,7 @@ do_mod_rm(void)
             cpu_state.eaaddr &= 0xffff;
         }
 
-        if (modrm_cycs_post[rmdat & 0xc7])
+        if (!is_nec && modrm_cycs_post[rmdat & 0xc7])
             do_cycles(modrm_cycs_post[rmdat & 0xc7]);
     }
 }
@@ -2210,11 +2215,23 @@ string_op(int bits)
             break;
         case 0x06:
             do_cycle_i();
-            lods(bits);
-            tmpa = cpu_data;
-            do_cycles_i(2);
-            lods_di(bits);
-            do_cycles_i(3);
+            if (is_nec) {
+                if (in_rep) {
+                    lods_di(bits);
+                    tmpa = cpu_data;
+                    lods(bits);
+                } else {
+                    lods(bits);
+                    tmpa = cpu_data;
+                    lods_di(bits);
+                }
+            } else {
+                lods(bits);
+                tmpa = cpu_data;
+                do_cycles_i(2);
+                lods_di(bits);
+                do_cycles_i(3);
+            }
 
             cpu_src  = cpu_data;
             cpu_dest = tmpa;
@@ -2556,7 +2573,9 @@ execvx0_6x(uint16_t *jump)
     uint16_t regval;
     uint16_t wordtopush;
     uint16_t immediate;
+    uint16_t tempw;
     int      bits;
+    int32_t  templ;
 
     switch (opcode) {
         case 0x60:    /* PUSHA/PUSH R */
@@ -2579,7 +2598,7 @@ execvx0_6x(uint16_t *jump)
             break;
 
         case 0x61:    /* POPA/POP R */
-            do_cycles(8);
+            // do_cycles(8);
             DI = readmemw(ss, ((SP) & 0xffff));
             biu_state_set_eu();
             SI = readmemw(ss, ((SP + 2) & 0xffff));
@@ -2611,11 +2630,33 @@ execvx0_6x(uint16_t *jump)
             }
             break;
 
+        case 0x63:
+            if (is_nec) {
+                /* read_operand16() */
+                if (cpu_mod != 3)
+                    do_cycles_i(2);    /* load_operand() */
+                tempw = cpu_state.pc;
+                geteaw();
+                do_cycles(60);
+            }
+            break;
+
         case 0x64:
         case 0x65:
             if (!is_nec) {
                 do_cycles_nx_i(2);    /* Guess, based on NOP. */
             }
+            break;
+
+        case 0x66 ... 0x67:    /* FPO2 - NEC FPU instructions. */
+            /* read_operand16() */
+            if (cpu_mod != 3)
+                do_cycles_i(2);    /* load_operand() */
+            tempw = cpu_state.pc;
+            geteaw();
+            /* fpu_op() */
+            cpu_state.pc = tempw; /* Do this as the x87 code advances it, which is needed on
+                                     the 286+ core, but not here. */
             break;
 
         case 0x68:
@@ -2624,13 +2665,17 @@ execvx0_6x(uint16_t *jump)
             break;
 
         case 0x69:
-            immediate = 0;
             bits      = 16;
             read_ea(0, 16);
             immediate = pfq_fetchw();
-            mul(cpu_data & 0xffff, immediate);
-            set_reg(cpu_reg, cpu_data);
-            set_co_mul(16, cpu_dest != 0);
+
+            templ = ((int) cpu_data) * ((int) immediate);
+            if ((templ >> 15) != 0 && (templ >> 15) != -1)
+                cpu_state.flags |= C_FLAG | V_FLAG;
+            else
+                cpu_state.flags &= ~(C_FLAG | V_FLAG);
+            set_reg(cpu_reg, templ & 0xffff);
+            do_cycles((cpu_mod == 3) ? 20 : 26);
             break;
 
         case 0x6a:
@@ -2639,13 +2684,19 @@ execvx0_6x(uint16_t *jump)
             break;
 
         case 0x6b:    /* IMUL reg16,reg16/mem16,imm8 */
-            immediate = 0;
-            bits      = 16;
             read_ea(0, 16);
             immediate = pfq_fetchb();
-            mul(cpu_data & 0xffff, immediate);
-            set_reg(cpu_reg, cpu_data);
-            set_co_mul(16, cpu_dest != 0);
+            immediate = geteaw();
+            if (immediate & 0x80)
+                immediate |= 0xff00;
+
+            templ = ((int) cpu_data) * ((int) immediate);
+            if ((templ >> 15) != 0 && (templ >> 15) != -1)
+                cpu_state.flags |= C_FLAG | V_FLAG;
+            else
+                cpu_state.flags &= ~(C_FLAG | V_FLAG);
+            set_reg(cpu_reg, templ & 0xffff);
+            do_cycles((cpu_mod == 3) ? 24 : 30);
             break;
 
         case 0x6c:
@@ -2722,6 +2773,7 @@ execute_instruction(void)
     uint8_t       nests;
 
     int8_t        rel8;
+    int8_t        temps;
 
     uint16_t      addr;
     uint16_t      jump = 0;
@@ -2736,13 +2788,19 @@ execute_instruction(void)
     uint16_t      tempw_int;
     uint16_t      size;
     uint16_t      tempbp;
+    uint16_t      src16;
 
     int16_t       rel16;
+    int16_t       temps16;
 
     uint32_t      prod32;
+    uint32_t      templ;
+    uint32_t      templ2 = 0;
 
     int           bits;
     int           negate;
+    int           tempws  = 0;
+    int           tempws2 = 0;
 
     completed = 1;
 
@@ -2867,7 +2925,7 @@ execute_instruction(void)
                 cpu_src    = cpu_data;
             } else {
                 if (cpu_mod != 3)
-                    do_cycles_i(2);    /* load_operand() */
+                    do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
                 if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
                     extra_eu_log("tempw      = get_ea(); begin\n");
                 }
@@ -3062,48 +3120,43 @@ execute_instruction(void)
             break;
 
         case 0x60 ... 0x7f: /* JMP rel8 */
-            if (is_nec && (opcode < 0x70)) {
-                // execvx0_6x();
-                fatal("execvx0_6x() not yet implemented\n");
-            } else {
-                switch ((opcode >> 1) & 0x07) {
-                    case 0x00:
-                        jump = cpu_state.flags & V_FLAG;
-                        break;
-                    case 0x01:
-                        jump = cpu_state.flags & C_FLAG;
-                        break;
-                    case 0x02:
-                        jump = cpu_state.flags & Z_FLAG;
-                        break;
-                    case 0x03:
-                        jump = cpu_state.flags & (C_FLAG | Z_FLAG);
-                        break;
-                    case 0x04:
-                        jump = cpu_state.flags & N_FLAG;
-                        break;
-                    case 0x05:
-                        jump = cpu_state.flags & P_FLAG;
-                        break;
-                    case 0x06:
-                        jump = (!!(cpu_state.flags & N_FLAG)) != (!!(cpu_state.flags & V_FLAG));
-                        break;
-                    case 0x07:
-                        jump = (cpu_state.flags & Z_FLAG) ||
-                                ((!!(cpu_state.flags & N_FLAG)) != (!!(cpu_state.flags & V_FLAG)));
-                        break;
-                }
-                if (opcode & 1)
-                    jump = !jump;
-
-                rel8 = (int8_t) pfq_fetchb();
-                new_ip = cpu_state.pc + rel8;
-                if (!is_nec)
-                    do_cycle_i();
-
-                if (jump)
-                    reljmp(new_ip, 1);
+            switch ((opcode >> 1) & 0x07) {
+                case 0x00:
+                    jump = cpu_state.flags & V_FLAG;
+                    break;
+                case 0x01:
+                    jump = cpu_state.flags & C_FLAG;
+                    break;
+                case 0x02:
+                    jump = cpu_state.flags & Z_FLAG;
+                    break;
+                case 0x03:
+                    jump = cpu_state.flags & (C_FLAG | Z_FLAG);
+                    break;
+                case 0x04:
+                    jump = cpu_state.flags & N_FLAG;
+                    break;
+                case 0x05:
+                    jump = cpu_state.flags & P_FLAG;
+                    break;
+                case 0x06:
+                    jump = (!!(cpu_state.flags & N_FLAG)) != (!!(cpu_state.flags & V_FLAG));
+                    break;
+                case 0x07:
+                    jump = (cpu_state.flags & Z_FLAG) ||
+                            ((!!(cpu_state.flags & N_FLAG)) != (!!(cpu_state.flags & V_FLAG)));
+                    break;
             }
+            if (opcode & 1)
+                jump = !jump;
+
+            rel8 = (int8_t) pfq_fetchb();
+            new_ip = cpu_state.pc + rel8;
+            if (!is_nec)
+                do_cycle_i();
+
+            if (jump)
+                reljmp(new_ip, 1);
             break;
 
         case 0x80: /* ADD/OR/ADC/SBB/AND/SUB/XOR/CMP r/m8, imm8 */
@@ -3602,7 +3655,7 @@ execute_instruction(void)
             /* rot rm */
             bits = 8 << (opcode & 1);
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             /* read_operand() */
             cpu_data = get_ea();
             cpu_src = pfq_fetchb();
@@ -3852,7 +3905,7 @@ execute_instruction(void)
             /* rot rm */
             bits = 8 << (opcode & 1);
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             /* read_operand() */
             cpu_data = get_ea();
             if ((opcode & 2) == 0)
@@ -3874,6 +3927,8 @@ execute_instruction(void)
             while (cpu_src != 0) {
                 cpu_dest = cpu_data;
                 oldc     = cpu_state.flags & C_FLAG;
+                if (is_nec && ((rmdat & 0x38) == 0x30))
+                    rmdat &= 0xef;    /* Make it 0x20, so it aliases to SHL. */
                 switch (rmdat & 0x38) {
                     case 0x00: /* ROL */
                         set_cf(top_bit(cpu_data, bits));
@@ -3956,39 +4011,60 @@ execute_instruction(void)
         case 0xd4: /* AAM */
             /* read_operand8() */
             cpu_src = pfq_fetchb();
-            /* Confirmed to be identical on V20/V30 to 808x, per
-               XTIDE working correctly on both (it uses AAM with
-               parameter other than 10. */
-#ifdef NO_VARIANT_ON_NEC
-            if (is_nec)
-                cpu_src = 10;
-#endif
-            /* aam() */
-            if (x86_div(AL, 0)) {
+
+            if (is_nec) {
+                if (!cpu_src)
+                    cpu_src = 10;
+                AH = AL / cpu_src;
+                AL %= cpu_src;
                 cpu_data = AL;
                 set_pzs(8);
+                do_cycles(12);
+            } else {
+                /* Confirmed to be identical on V20/V30 to 808x, per
+                   XTIDE working correctly on both (it uses AAM with
+                   parameter other than 10. */
+                /* aam() */
+                if (x86_div(AL, 0)) {
+                    cpu_data = AL;
+                    set_pzs(8);
+                }
             }
             break;
 
         case 0xd5: /* AAD */
             /* read_operand8() */
             cpu_src = pfq_fetchb();
-            if (is_nec)
+
+            if (is_nec) {
                 cpu_src = 10;
-            /* aad() */
-            mul(cpu_src, AH);
-            cpu_dest = AL;
-            cpu_src  = cpu_data;
-            add(8);
-            AL = cpu_data;
-            AH = 0x00;
-            set_pzs(8);
+                AL = (AH * cpu_src) + AL;
+                AH = 0;
+                cpu_data = AL;
+                set_pzs(8);
+                do_cycles(4);
+            } else {
+                if (is_nec)
+                    cpu_src = 10;
+                /* aad() */
+                mul(cpu_src, AH);
+                cpu_dest = AL;
+                cpu_src  = cpu_data;
+                add(8);
+                AL = cpu_data;
+                AH = 0x00;
+                set_pzs(8);
+            }
             break;
 
         case 0xd6: /* SALC */
-            AL = (cpu_state.flags & C_FLAG) ? 0xff : 0x00;
-            break;
-
+            if (is_nec) {
+                do_cycles(14);
+                fallthrough;
+            } else {
+                AL = (cpu_state.flags & C_FLAG) ? 0xff : 0x00;
+                break;
+            }
         case 0xd7: /* XLAT */
             do_cycles_i(3);
             /* biu_read_u8() */
@@ -4294,6 +4370,9 @@ execute_instruction(void)
             break;
 
         case 0xf4: /* HLT */
+            if (is_nec)
+                in_hlt = 1;
+
             if (!repeating) {
                 biu_suspend_fetch();
                 biu_queue_flush();
@@ -4311,6 +4390,9 @@ execute_instruction(void)
                 repeating = 1;
                 completed = 0;
             }
+
+             if (is_nec)
+                 in_hlt = 0;
             break;
 
         case 0xf5: /* CMC */
@@ -4320,10 +4402,75 @@ execute_instruction(void)
         case 0xf6: /* Miscellaneuous Opcode Extensions, r/m8, imm8 */
             bits = 8;
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             negate = !!in_rep;
 
-            switch (rmdat & 0x38) {
+            if (is_nec && ((rmdat & 0x38) >= 0x20))  switch (rmdat & 0x38) {
+                case 0x20: /* MUL */
+                    /* read_operand8() */
+                    cpu_data = get_ea();
+
+                    AX = AL * cpu_data;
+                    if (AH)
+                        cpu_state.flags |= (C_FLAG | V_FLAG);
+                    else
+                        cpu_state.flags &= ~(C_FLAG | V_FLAG);
+
+                    do_cycles((cpu_mod == 3) ? 24 : 30);
+                    break;
+                case 0x28: /* IMUL */
+                    /* read_operand8() */
+                    cpu_data = get_ea();
+
+                    tempws = (int) ((int8_t) AL) * (int) ((int8_t) cpu_data);
+                    AX     = tempws & 0xffff;
+                    if (((int16_t) AX >> 7) != 0 && ((int16_t) AX >> 7) != -1)
+                        cpu_state.flags |= (C_FLAG | V_FLAG);
+                    else
+                        cpu_state.flags &= ~(C_FLAG | V_FLAG);
+
+                    do_cycles((cpu_mod == 3) ? 13 : 19);
+                    break;
+                case 0x30: /* DIV */
+                    /* read_operand8() */
+                    cpu_data = get_ea();
+
+                    src16 = AX;
+                    if (cpu_data)
+                        tempw = src16 / cpu_data;
+                    if (cpu_data && !(tempw & 0xff00)) {
+                        AH = src16 % cpu_data;
+                        AL = (src16 / cpu_data) & 0xff;
+                        cpu_state.flags |= 0x8D5;
+                        cpu_state.flags &= ~1;
+                    } else {
+                        intr_routine(0, 0);
+                        break;
+                    }
+
+                    do_cycles((cpu_mod == 3) ? 21 : 27);
+                    break;
+                case 0x38: /* IDIV */
+                    /* read_operand8() */
+                    cpu_data = get_ea();
+
+                    tempws = (int) (int16_t) AX;
+                    if (cpu_data != 0)
+                        tempws2 = tempws / (int) ((int8_t) cpu_data);
+                    temps = tempws2 & 0xff;
+                    if (cpu_data && ((int) temps == tempws2)) {
+                        AH = (tempws % (int) ((int8_t) cpu_data)) & 0xff;
+                        AL = tempws2 & 0xff;
+                        cpu_state.flags |= 0x8D5;
+                        cpu_state.flags &= ~1;
+                    } else {
+                        intr_routine(0, 0);
+                        break;
+                    }
+
+                    do_cycles((cpu_mod == 3) ? 11 : 17);
+                    break;
+            } else  switch (rmdat & 0x38) {
                 case 0x00: /* TEST */
                 case 0x08:
                     /* read_operand8() */
@@ -4331,9 +4478,9 @@ execute_instruction(void)
                     /* read_operand8() */
                     cpu_src = pfq_fetch();
 
-                    do_cycles_i(2);
+                    do_cycles_i(is_nec ? 1 : 2);
 
-                     /* math_op8() */
+                    /* math_op8() */
                     test(bits, cpu_data, cpu_src);
                     break;
                 case 0x10: /* NOT */
@@ -4390,7 +4537,7 @@ execute_instruction(void)
 
                     cpu_src = cpu_data;
                     if (x86_div(AL, AH)) {
-                        if (negate)
+                        if (!is_nec && negate)
                             AL = -AL;
                         do_cycle();
                     }
@@ -4402,10 +4549,78 @@ execute_instruction(void)
             bits = 16;
             // do_mod_rm();
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             negate = !!in_rep;
 
-            switch (rmdat & 0x38) {
+            if (is_nec && ((rmdat & 0x38) >= 0x20))  switch (rmdat & 0x38) {
+                case 0x20: /* MUL */
+                    /* read_operand16() */
+                    cpu_data = get_ea();
+
+                    templ = AX * cpu_data;
+                    AX    = templ & 0xFFFF;
+                    DX    = templ >> 16;
+                    if (DX)
+                        cpu_state.flags |= (C_FLAG | V_FLAG);
+                    else
+                        cpu_state.flags &= ~(C_FLAG | V_FLAG);
+
+                    do_cycles((cpu_mod == 3) ? 29 : 35);
+                    break;
+                case 0x28: /* IMUL */
+                    /* read_operand16() */
+                    cpu_data = get_ea();
+
+                    templ = (int) ((int16_t) AX) * (int) ((int16_t) cpu_data);
+                    AX    = templ & 0xFFFF;
+                    DX    = templ >> 16;
+                    if (((int32_t) templ >> 15) != 0 && ((int32_t) templ >> 15) != -1)
+                        cpu_state.flags |= (C_FLAG | V_FLAG);
+                    else
+                        cpu_state.flags &= ~(C_FLAG | V_FLAG);
+
+                    do_cycles((cpu_mod == 3) ? 17 : 27);
+                    break;
+                case 0x30: /* DIV */
+                    /* read_operand16() */
+                    cpu_data = get_ea();
+
+                    templ = (DX << 16) | AX;
+                    if (cpu_data)
+                        templ2 = templ / cpu_data;
+                    if (cpu_data && !(templ2 & 0xffff0000)) {
+                        DX = templ % cpu_data;
+                        AX = (templ / cpu_data) & 0xffff;
+                        cpu_data = AX;
+                        set_pzs(16);
+                    } else {
+                        intr_routine(0, 0);
+                        break;
+                    }
+
+                    do_cycles((cpu_mod == 3) ? 26 : 36);
+                    break;
+                case 0x38: /* IDIV */
+                    /* read_operand16() */
+                    cpu_data = get_ea();
+
+                    tempws = (int) ((DX << 16) | AX);
+                    if (cpu_data)
+                        tempws2 = tempws / (int) ((int16_t) cpu_data);
+                    temps16 = tempws2 & 0xffff;
+                    if ((cpu_data != 0) && ((int) temps16 == tempws2)) {
+                        DX = tempws % (int) ((int16_t) cpu_data);
+                        AX = tempws2 & 0xffff;
+                        cpu_data = AX;
+                        set_pzs(16);
+                    } else {
+                        intr_routine(0, 0);
+                        break;
+                    }
+
+                    do_cycles((cpu_mod == 3) ? 13 : 23);
+                    break;
+            } else  switch (rmdat & 0x38) {
                 case 0x00: /* TEST */
                 case 0x08:
                     /* read_operand16() */
@@ -4471,7 +4686,7 @@ execute_instruction(void)
 
                     cpu_src = cpu_data;
                     if (x86_div(AX, DX)) {
-                        if (negate)
+                        if (!is_nec && negate)
                             AX = -AX;
                         do_cycle();
                     }
@@ -4498,7 +4713,7 @@ execute_instruction(void)
             bits = 8;
             // do_mod_rm();
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             read_ea(((rmdat & 0x38) == 0x18) || ((rmdat & 0x38) == 0x28), bits);
             switch (rmdat & 0x38) {
                 case 0x00: /* INC rm */
@@ -4634,7 +4849,7 @@ execute_instruction(void)
             bits = 16;
             // do_mod_rm();
             if (cpu_mod != 3)
-                do_cycles_i(2);    /* load_operand() */
+                do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             read_ea(((rmdat & 0x38) == 0x18) || ((rmdat & 0x38) == 0x28), bits);
             switch (rmdat & 0x38) {
                 case 0x00: /* INC rm */

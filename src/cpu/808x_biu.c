@@ -797,13 +797,13 @@ biu_eu_request(void)
             break;
         case BIU_STATE_RESUME:
             /* Resume it - leftover cycles. */
-            for (uint8_t i = 0; i < (biu_state_total_len - biu_state_length); i++)
+            if (!is_nec)  for (uint8_t i = 0; i < (biu_state_total_len - biu_state_length); i++)
                 biu_cycle_idle(biu_state);
             break;
         case BIU_STATE_IDLE:
         case BIU_STATE_SUSP:
             /* Resume it - 3 cycles. */
-            for (uint8_t i = 0; i < 3; i++)
+            if (!is_nec)  for (uint8_t i = 0; i < 3; i++)
                 biu_cycle_idle(biu_state);
             break;
         case BIU_STATE_DELAY:
