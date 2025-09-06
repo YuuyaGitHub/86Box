@@ -166,8 +166,8 @@ const uint8_t opf_nec[256] = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,  
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 48 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 50 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 58 */
-                                    0,      0, OP_MRM,      0,      0,      0,      0,      0,   /* 60 */
-                                    0, OP_MRM,      0, OP_MRM,      0,      0,      0,      0,   /* 68 */
+                                    0,      0, OP_MRM,      0, OP_PRE, OP_PRE,      0,      0,   /* 60 */
+                                    0, OP_MRM,      0, OP_MEA,      0,      0,      0,      0,   /* 68 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 70 */
                                     0,      0,      0,      0,      0,      0,      0,      0,   /* 78 */
                                OP_GRP, OP_GRP, OP_GRP, OP_GRP, OP_MEA, OP_MEA, OP_MEA, OP_MEA,   /* 80 */
@@ -438,7 +438,7 @@ set_ip(uint16_t new_ip)
 static void
 startx86(void)
 {
-#if 0
+#ifdef DEBUG_MODE
     AL = 0x04;
     cycles_forward(1);
     outb(0x0008, AL);
@@ -627,10 +627,7 @@ reset_808x(int hard)
         _opseg[3] = &cpu_state.seg_ds;
     }
 
-#if 1
-    load_cs(0xFFFF);
-    cpu_state.pc = 0;
-#else
+#ifdef DEBUG_MODE
     load_cs(0x0000);
     cpu_state.pc = 0x1000;
     {
@@ -642,6 +639,9 @@ reset_808x(int hard)
         fread(&(ram[0x1000]), 1, flen, f);
         fclose(f);
     }
+#else
+    load_cs(0xFFFF);
+    cpu_state.pc = 0;
 #endif
 
     if (is_nec)
@@ -1996,6 +1996,7 @@ aas(void)
 static void
 finalize(void)
 {
+    in_0f      = 0;
     repeating  = 0;
     ovr_seg    = NULL;
     in_rep     = 0;
@@ -2071,6 +2072,13 @@ decode(void)
     uint8_t prefix = 0;
 
     opcode  = pfq_fetchb_common();
+#if 0
+    pclog("[%04X:%08X] opcode = %02X (AX = %04X, BX = %04X, CX = %04X, DX = %04X\n"
+          "                           DI = %04X, SI = %04X, SP = %04X, BP = %04X\n"
+          "                           DS = %04X, ES = %04X, SS = %04X, FL = %04X\n",
+                                      CS, cpu_state.pc, opcode,
+                                      AX, BX, CX, DX, DI, SI, SP, BP, DS, ES, SS, cpu_state.flags);
+#endif
 
     modrm_loaded = 0;
 
@@ -2080,8 +2088,8 @@ decode(void)
         switch (opcode) {
             case 0x0f: /* NEC/186 */
                 if (is_nec) {
-                    in_0f = 1;
-                    prefix = 1;
+                    in_0f      = 1;
+                    prefix     = 1;
                 }
                 break;
             case 0x26: /* ES: */
@@ -2091,15 +2099,24 @@ decode(void)
                 ovr_seg   = opseg[(opcode >> 3) & 0x03];
                 prefix = 1;
                 break;
+            case 0x64: /* REPNC */
+            case 0x65: /* REPC */
+                if (is_nec) {
+                    in_rep     = (opcode == 0x64 ? 1 : 2);
+                    rep_c_flag = 1;
+                    prefix     = 1;
+                }
+                break;
             case 0xf0:
             case 0xf1: /* LOCK - F1 is alias */
-                in_lock = 1;
-                prefix = 1;
+                in_lock    = 1;
+                prefix     = 1;
                 break;
             case 0xf2: /* REPNE */
             case 0xf3: /* REPE */
                 in_rep     = (opcode == 0xf2 ? 1 : 2);
-                prefix = 1;
+                rep_c_flag = 0;
+                prefix     = 1;
                 break;
             default:
                 break;
@@ -2111,6 +2128,13 @@ decode(void)
         do_cycle();
 
         opcode  = pfq_fetchb_common();
+#if 0
+        pclog("[%04X:%08X] opcode = %02X (AX = %04X, BX = %04X, CX = %04X, DX = %04X\n"
+              "                           DI = %04X, SI = %04X, SP = %04X, BP = %04X\n"
+              "                           DS = %04X, ES = %04X, SS = %04X, FL = %04X\n",
+                                          CS, cpu_state.pc, opcode,
+                                          AX, BX, CX, DX, DI, SI, SP, BP, DS, ES, SS, cpu_state.flags);
+#endif
     }
 
     if (is_nec) {
@@ -2138,12 +2162,16 @@ decode(void)
         modrm_loaded = 1;
     }
 
-    if (!is_nec && modrm_loaded && !(op_f & OP_EA)) {
-        if (opcode == 0x8f) {
-            if (cpu_mod == 3)
-               do_cycles_i(2);
-        } else
-            do_cycles_i(2);
+    if (modrm_loaded && !(op_f & OP_EA)) {
+        if (is_nec)
+            do_cycle();
+        else {
+            if (opcode == 0x8f) {
+                if (cpu_mod == 3)
+                   do_cycles_i(2);
+            } else
+                do_cycles_i(2);
+        }
     }
 }
 
@@ -2527,14 +2555,11 @@ execvx0_0f(void)
             do_cycles_nx_i(2);    /* Guess, based on NOP. */
             break;
     }
-
-    in_0f = 0;
 }
 
 static void
 execvx0_6x(uint16_t *jump)
 {
-    uint16_t orig_sp;
     uint16_t lowbound;
     uint16_t highbound;
     uint16_t regval;
@@ -2544,27 +2569,40 @@ execvx0_6x(uint16_t *jump)
 
     switch (opcode) {
         case 0x60:    /* PUSHA/PUSH R */
-            orig_sp = SP;
-            push(&AX);
-            push(&CX);
-            push(&DX);
-            push(&BX);
-            push(&orig_sp);
-            push(&BP);
-            push(&SI);
-            push(&DI);
+            writememw(ss, ((SP -  2) & 0xffff), AX);
+            biu_state_set_eu();
+            writememw(ss, ((SP -  4) & 0xffff), CX);
+            biu_state_set_eu();
+            writememw(ss, ((SP -  6) & 0xffff), DX);
+            biu_state_set_eu();
+            writememw(ss, ((SP -  8) & 0xffff), BX);
+            biu_state_set_eu();
+            writememw(ss, ((SP - 10) & 0xffff), SP);
+            biu_state_set_eu();
+            writememw(ss, ((SP - 12) & 0xffff), BP);
+            biu_state_set_eu();
+            writememw(ss, ((SP - 14) & 0xffff), SI);
+            biu_state_set_eu();
+            writememw(ss, ((SP - 16) & 0xffff), DI);
+            SP -= 16;
             break;
 
         case 0x61:    /* POPA/POP R */
             do_cycles(8);
-            DI = pop();
-            SI = pop();
-            BP = pop();
-            (void) pop();    /* former orig_sp */
-            BX      = pop();
-            DX      = pop();
-            CX      = pop();
-            AX      = pop();
+            DI = readmemw(ss, ((SP) & 0xffff));
+            biu_state_set_eu();
+            SI = readmemw(ss, ((SP + 2) & 0xffff));
+            biu_state_set_eu();
+            BP = readmemw(ss, ((SP + 4) & 0xffff));
+            biu_state_set_eu();
+            BX = readmemw(ss, ((SP + 8) & 0xffff));
+            biu_state_set_eu();
+            DX = readmemw(ss, ((SP + 10) & 0xffff));
+            biu_state_set_eu();
+            CX = readmemw(ss, ((SP + 12) & 0xffff));
+            biu_state_set_eu();
+            AX = readmemw(ss, ((SP + 14) & 0xffff));
+            SP += 16;
             break;
 
         case 0x62:    /* BOUND r/m */
@@ -2584,12 +2622,7 @@ execvx0_6x(uint16_t *jump)
 
         case 0x64:
         case 0x65:
-            if (is_nec) {
-                /* REPC/REPNC */
-                in_rep     = (opcode == 0x64 ? 1 : 2);
-                rep_c_flag = 1;
-                completed  = 0;
-            } else {
+            if (!is_nec) {
                 do_cycles_nx_i(2);    /* Guess, based on NOP. */
             }
             break;
@@ -3074,7 +3107,8 @@ execute_instruction(void)
 
                 rel8 = (int8_t) pfq_fetchb();
                 new_ip = cpu_state.pc + rel8;
-                do_cycle_i();
+                if (!is_nec)
+                    do_cycle_i();
 
                 if (jump)
                     reljmp(new_ip, 1);
@@ -3780,6 +3814,13 @@ execute_instruction(void)
             break;
 
         case 0xc9: /* RETF */
+            if (is_nec) {
+                /* LEAVE/DISPOSE */
+                SP      = BP;
+                BP      = pop();
+                break;
+            } else
+                fallthrough;
         case 0xcb:
             bits = 16;
             do_cycle_i();
@@ -4767,13 +4808,16 @@ execx86(int cycs)
                 clear_lock = 0;
             }
 
+#ifdef DEBUG_MODE
             if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_H))
                 fatal("EOF\n");
+#endif
 
             if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
                 extra_eu_log("decode(); begin\n");
             }
-            decode();
+            if (!is_nec || (cpu_state.flags & MD_FLAG))
+                decode();
             if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
                 extra_eu_log("decode(); end\n");
             }
@@ -4810,7 +4854,7 @@ execx86(int cycs)
             if (noint)
                 noint = 0;
 
-            clock_end();
+            // clock_end();
         }
 
 #ifdef USE_GDBSTUB

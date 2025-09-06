@@ -219,33 +219,41 @@ static void pfq_add(void);
 static void
 pfq_resume(int delay)
 {
-    biu_state = BIU_STATE_RESUME;
-    biu_state_length = delay;
-    biu_state_total_len = delay;
+    if (is_nec)
+       biu_state = BIU_STATE_PF;
+    else {
+        biu_state = BIU_STATE_RESUME;
+        biu_state_length = delay;
+        biu_state_total_len = delay;
+    }
 }
 
 static void
 pfq_switch_to_pf(int delay)
 {
-    biu_next_state = BIU_STATE_RESUME;
-    biu_state_length = delay;
-    biu_state_total_len = delay;
+    if (is_nec)
+       biu_next_state = BIU_STATE_PF;
+    else {
+        biu_next_state = BIU_STATE_RESUME;
+        biu_state_length = delay;
+        biu_state_total_len = delay;
+    }
 }
 
 static void
 pfq_schedule(void)
 {
     if (biu_state == BIU_STATE_EU) {
-        if (!fetch_suspended && (pfq_pos < 4))
+        if ((is_nec || !fetch_suspended) && (pfq_pos < 4))
             biu_next_state = BIU_STATE_PF;
             // pfq_switch_to_pf(2);
         else
             biu_next_state = BIU_STATE_IDLE;
     } else {
-        if (pfq_pos == 3) {
+        if (!is_nec && (pfq_pos == 3)) {
             biu_next_state = BIU_STATE_DELAY;
-            biu_state_length = is_nec ? 0 : 3;
-            biu_state_total_len = is_nec ? 0 : 3;
+            biu_state_length = 3;
+            biu_state_total_len = 3;
         } else
             biu_next_state = BIU_STATE_PF;
     }
@@ -300,15 +308,64 @@ process_timers(void)
     clock_start();
 }
 
+void
+process_timers_ex(void)
+{
+    /* On 808x systems, clock speed is usually crystal frequency divided by an integer. */
+    tsc += (xt_cpu_multi >> 32ULL);    /* Shift xt_cpu_multi by 32 bits to
+                                          the right and then multiply. */
+    if (TIMER_VAL_LESS_THAN_VAL(timer_target, (uint32_t) tsc))
+        timer_process();
+}
+
 static int cycles_ex = 0;
+
+#if 0
+static void
+biu_print_cycle_always(void)
+{
+    // if ((CS == 0xf000) && (cpu_state.pc >= 0x0101) && (cpu_state.pc < 0xe000))
+        // fatal("Fatal!\n");
+
+    // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
+    if ((opcode == 0x60) || (opcode == 0x61)) {
+        if (biu_state >= BIU_STATE_PF) {
+            if (biu_wait) {
+                pclog("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                      pfq_pos, lpBiuStates[BIU_STATE_WAIT], wait_states);
+            } else {
+                char temp[16] = { 0 };
+
+                sprintf(temp, lpBiuStates[biu_state], biu_cycles + 1);
+                pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                      pfq_pos, temp);
+            }
+        } else {
+            pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                  pfq_pos, lpBiuStates[biu_state]);
+        }
+    }
+}
+#endif
 
 void
 cycles_forward(int c)
 {
+    for (int i = 0; i < c; i++) {
+#if 0
+        biu_print_cycle_always();
+#endif
+        cycles--;
+        if (!is286)
+            process_timers_ex();
+    }
+
+#if 0
     cycles -= c;
 
     if (!is286)
         process_timers();
+#endif
 
     cycles_ex++;
 }
@@ -746,7 +803,7 @@ biu_eu_request(void)
         case BIU_STATE_IDLE:
         case BIU_STATE_SUSP:
             /* Resume it - 3 cycles. */
-            if (!is_nec)  for (uint8_t i = 0; i < 3; i++)
+            for (uint8_t i = 0; i < 3; i++)
                 biu_cycle_idle(biu_state);
             break;
         case BIU_STATE_DELAY:
@@ -791,14 +848,14 @@ void
 wait(int c)
 {
     // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        // extra_biu_log("[%02X] wait(%i, %i)\n", opcode, c, bus); 
+        // extra_biu_log("[%02X] wait(%i)\n", opcode, c); 
     // }
 
     if (c < 0) {
         extra_biu_log("Negative cycles: %i!\n", c);
     }
 
-    x808x_biu_log("[%04X:%04X] %02X %i cycles (%i)\n", CS, cpu_state.pc, opcode, c, bus);
+    x808x_biu_log("[%04X:%04X] %02X %i cycles\n", CS, cpu_state.pc, opcode, c);
 
     for (uint8_t i = 0; i < c; i++)
         biu_cycle();
@@ -837,6 +894,10 @@ biu_wait_for_read_finish(void)
 void
 cpu_io(int bits, int out, uint16_t port)
 {
+    /* Do this, otherwise, the first half of the operation never happens. */
+    if ((BUS_CYCLE == BUS_T4) && (biu_state == BIU_STATE_EU))
+        BUS_CYCLE_T1;
+
     if (out) {
         if (bits == 16) {
             if (is8086 && !(port & 1)) {
@@ -883,6 +944,13 @@ cpu_io(int bits, int out, uint16_t port)
     bus_request_type = 0;
 }
 
+void
+biu_state_set_eu(void)
+{
+    biu_state = BIU_STATE_EU;
+    biu_state_length = 0;
+}
+
 /* Reads a byte from the memory and advances the BIU. */
 uint8_t
 readmemb(uint32_t s, uint16_t a)
@@ -891,6 +959,9 @@ readmemb(uint32_t s, uint16_t a)
 
     mem_seg          = s;
     mem_addr         = a;
+    /* Do this, otherwise, the first half of the operation never happens. */
+    if ((BUS_CYCLE == BUS_T4) && (biu_state == BIU_STATE_EU))
+        BUS_CYCLE_T1;
     bus_request_type = BUS_MEM;
     biu_begin_eu();
     biu_wait_for_read_finish();
@@ -908,6 +979,9 @@ readmemw(uint32_t s, uint16_t a)
 
     mem_seg  = s;
     mem_addr = a;
+    /* Do this, otherwise, the first half of the operation never happens. */
+    if ((BUS_CYCLE == BUS_T4) && (biu_state == BIU_STATE_EU))
+        BUS_CYCLE_T1;
     if (is8086 && !(a & 1)) {
         bus_request_type = BUS_MEM | BUS_WIDE;
         biu_begin_eu();
@@ -970,6 +1044,9 @@ writememb(uint32_t s, uint32_t a, uint8_t v)
     mem_seg          = s;
     mem_addr         = a;
     mem_data         = v;
+    /* Do this, otherwise, the first half of the operation never happens. */
+    if ((BUS_CYCLE == BUS_T4) && (biu_state == BIU_STATE_EU))
+        BUS_CYCLE_T1;
     bus_request_type = BUS_MEM | BUS_OUT;
     biu_begin_eu();
     biu_wait_for_write_finish();
@@ -992,6 +1069,9 @@ writememw(uint32_t s, uint32_t a, uint16_t v)
     mem_seg  = s;
     mem_addr = a;
     mem_data = v;
+    /* Do this, otherwise, the first half of the operation never happens. */
+    if ((BUS_CYCLE == BUS_T4) && (biu_state == BIU_STATE_EU))
+        BUS_CYCLE_T1;
     if (is8086 && !(a & 1)) {
         bus_request_type = BUS_MEM | BUS_OUT | BUS_WIDE;
         biu_begin_eu();
@@ -1084,7 +1164,7 @@ biu_resume_on_queue_read(void)
 {
     // extra_biu_log("biu_resume_on_queue_read(%i, %i)\n", pfq_pos, biu_state);
     if ((biu_next_state == BIU_STATE_IDLE) && (pfq_pos == 3))
-        pfq_switch_to_pf((biu_next_state == BIU_STATE_EU) ? (is_nec ? 0 : 3) : 0);
+        pfq_switch_to_pf((!is_nec && (biu_next_state == BIU_STATE_EU)) ? 3 : 0);
 }
 
 /* Fetches a byte from the prefetch queue, or from memory if the queue has
@@ -1187,7 +1267,7 @@ biu_queue_flush(void)
 
     /* FLUSH command. */
     if ((biu_state == BIU_STATE_SUSP) || (biu_state == BIU_STATE_IDLE))
-        pfq_resume(is_nec ? 0 : 3);
+        pfq_resume(3);
 }
 
 static void
@@ -1204,8 +1284,12 @@ biu_suspend_fetch(void)
     fetch_suspended = 1;
 
     if (biu_state == BIU_STATE_PF) {
-        biu_bus_wait_finish();
-        biu_cycle();
+        if (is_nec)
+            BUS_CYCLE_T1;
+        else {
+            biu_bus_wait_finish();
+            biu_cycle();
+        }
         biu_state = BIU_STATE_IDLE;
         biu_next_state = BIU_STATE_IDLE;
     } else {
