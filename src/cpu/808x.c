@@ -2178,10 +2178,8 @@ decode(void)
 static void
 string_op(int bits)
 {
-    uint8_t       tempb;
     uint16_t      tmpa;
     uint16_t      old_ax;
-    uint16_t      tempw;
 
     if ((opcode & 0xf0) == 0x60)  switch (opcode & 0x0e) {
         case 0x0c:
@@ -2196,18 +2194,11 @@ string_op(int bits)
         case 0x0e:
             old_ax           = AX;
             lods(bits);
-            if (bits == 16)
-                tempw            = cpu_data & 0xffff;
-            else
-                tempb            = cpu_data & 0xff;
+            set_accum(bits, cpu_data);
             cpu_data         = DX;
             do_cycle_i();
             /* biu_io_write_u16() */
             cpu_state.eaaddr = cpu_data;
-            if (bits == 16)
-                cpu_data = tempw;
-            else
-                cpu_data = tempb;
             cpu_io(bits, 1, cpu_state.eaaddr);
             AX               = old_ax;
             break;
