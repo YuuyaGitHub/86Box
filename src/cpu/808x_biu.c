@@ -106,12 +106,6 @@ x808x_biu_log(const char *fmt, ...)
 #    define x808x_biu_log(fmt, ...)
 #endif
 
-#ifdef ENABLE_EXTRA_BIU_LOG
-#    define extra_biu_log pclog
-#else
-#    define extra_biu_log(fmt, ...)
-#endif
-
 void
 biu_set_bus_cycle(int bus_cycle)
 {
@@ -246,7 +240,6 @@ pfq_schedule(void)
     if (biu_state == BIU_STATE_EU) {
         if ((is_nec || !fetch_suspended) && (pfq_pos < 4))
             biu_next_state = BIU_STATE_PF;
-            // pfq_switch_to_pf(2);
         else
             biu_next_state = BIU_STATE_IDLE;
     } else {
@@ -304,13 +297,6 @@ clock_start(void)
 void
 process_timers(void)
 {
-    clock_end();
-    clock_start();
-}
-
-void
-process_timers_ex(void)
-{
     /* On 808x systems, clock speed is usually crystal frequency divided by an integer. */
     tsc += (xt_cpu_multi >> 32ULL);    /* Shift xt_cpu_multi by 32 bits to
                                           the right and then multiply. */
@@ -320,52 +306,14 @@ process_timers_ex(void)
 
 static int cycles_ex = 0;
 
-#if 0
-static void
-biu_print_cycle_always(void)
-{
-    // if ((CS == 0xf000) && (cpu_state.pc >= 0x0101) && (cpu_state.pc < 0xe000))
-        // fatal("Fatal!\n");
-
-    // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-    if ((opcode == 0x60) || (opcode == 0x61)) {
-        if (biu_state >= BIU_STATE_PF) {
-            if (biu_wait) {
-                pclog("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                      pfq_pos, lpBiuStates[BIU_STATE_WAIT], wait_states);
-            } else {
-                char temp[16] = { 0 };
-
-                sprintf(temp, lpBiuStates[biu_state], biu_cycles + 1);
-                pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                      pfq_pos, temp);
-            }
-        } else {
-            pclog("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
-                  pfq_pos, lpBiuStates[biu_state]);
-        }
-    }
-}
-#endif
-
 void
 cycles_forward(int c)
 {
     for (int i = 0; i < c; i++) {
-#if 0
-        biu_print_cycle_always();
-#endif
         cycles--;
         if (!is286)
-            process_timers_ex();
+            process_timers();
     }
-
-#if 0
-    cycles -= c;
-
-    if (!is286)
-        process_timers();
-#endif
 
     cycles_ex++;
 }
@@ -491,23 +439,20 @@ bus_do_mem(int io_type)
 static void
 biu_print_cycle(void)
 {
-    // if ((CS == 0xf000) && (cpu_state.pc >= 0x0101) && (cpu_state.pc < 0xe000))
-        // fatal("Fatal!\n");
-
     if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
         if (biu_state >= BIU_STATE_PF) {
             if (biu_wait) {
-                extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                x808x_biu_log("[%04X:%04X] [%i, %i] (%i) %s (%i)\n", CS, cpu_state.pc, dma_state, dma_wait_states,
                               pfq_pos, lpBiuStates[BIU_STATE_WAIT], wait_states);
             } else {
                 char temp[16] = { 0 };
 
                 sprintf(temp, lpBiuStates[biu_state], biu_cycles + 1);
-                extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+                x808x_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
                               pfq_pos, temp);
             }
         } else {
-            extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+            x808x_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
                           pfq_pos, lpBiuStates[biu_state]);
         }
     }
@@ -521,10 +466,6 @@ do_wait(void)
 
     if (dma_wait_states > 0)
         dma_wait_states--;
-
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        extra_biu_log("BIU: do_wait(): %i, %i\n", wait_states, dma_wait_states);
-    }
 }
 
 static void
@@ -534,19 +475,7 @@ run_dma_cycle(void)
                            (BUS_CYCLE == BUS_T4) || biu_wait) && !in_lock;
 
     switch (dma_state) {
-#if 0
-        case DMA_STATE_IDLE:
-            if (refresh > 0) {
-                refresh--;
-                dma_state = DMA_STATE_DREQ;
-                dma_state_length = 1;
-            }
-            break;
-#endif
         case DMA_STATE_TIMER:
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                extra_biu_log("DREQ\n");
-            }
             dma_state = DMA_STATE_DREQ;
             dma_state_length = 1;
             break;
@@ -581,7 +510,7 @@ static void
 biu_cycle_idle(int type)
 {
     if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        extra_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
+        x808x_biu_log("[%04X:%04X] [%i, %i] (%i) %s\n", CS, cpu_state.pc, dma_state, dma_wait_states,
                       pfq_pos, lpBiuStates[type]);
     }
 
@@ -624,7 +553,6 @@ do_bus_access(void)
         wait_states = 0;
         switch (io_type & BUS_ACCESS_TYPE) {
             case BUS_CODE:
-                // pfq_add();
                 if (is8086)
                     pfq_in = readmemwf(pfq_ip);
                 else
@@ -632,9 +560,6 @@ do_bus_access(void)
                 break;
             case BUS_IO:
                 bus_do_io(io_type);
-                // if (cpu_state.eaaddr == 0x41) {
-                    // extra_biu_log("I/O port 41h: First Tw: cycles = %i\n", cycles_ex);
-                // }
                 break;
             case BUS_MEM:
                 bus_do_mem(io_type);
@@ -678,7 +603,6 @@ biu_do_cycle(void)
             fatal("Invalid BIU state: %02X\n", biu_state);
             break;
         case BIU_STATE_RESUME:
-            // run_dma_cycle();
             if (biu_state_length > 0) {
                 biu_state_length--;
                 if (biu_state_length == 0) {
@@ -692,11 +616,9 @@ biu_do_cycle(void)
             break;
         case BIU_STATE_IDLE:
         case BIU_STATE_SUSP:
-            // run_dma_cycle();
             biu_state = biu_next_state;
             break;
         case BIU_STATE_DELAY:
-            // run_dma_cycle();
             if (biu_state_length > 0) {
                 biu_state_length--;
                 if (biu_state_length == 0) {
@@ -721,15 +643,11 @@ biu_do_cycle(void)
         case BIU_STATE_PF:
         case BIU_STATE_EU:
             if (biu_wait) {
-                // run_dma_cycle();
-
                 if ((wait_states == 0) && (dma_wait_states == 0)) {
                     biu_wait = 0;
                     BUS_CYCLE_NEXT;
                 }
             } else {
-                // run_dma_cycle();
-
                 if (BUS_CYCLE == BUS_T4) {
                     if (biu_state == BIU_STATE_PF)
                         pfq_add();
@@ -787,10 +705,6 @@ biu_cycle(void)
 static void
 biu_eu_request(void)
 {
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        extra_biu_log("biu_eu_request()\n");
-    }
-
     switch (biu_state) {
         default:
             fatal("Invalid BIU state: %02X\n", biu_state);
@@ -847,14 +761,6 @@ biu_eu_request(void)
 void
 wait(int c)
 {
-    // if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        // extra_biu_log("[%02X] wait(%i)\n", opcode, c); 
-    // }
-
-    if (c < 0) {
-        extra_biu_log("Negative cycles: %i!\n", c);
-    }
-
     x808x_biu_log("[%04X:%04X] %02X %i cycles\n", CS, cpu_state.pc, opcode, c);
 
     for (uint8_t i = 0; i < c; i++)
@@ -1038,9 +944,6 @@ writememb(uint32_t s, uint32_t a, uint8_t v)
 {
     uint32_t addr = s + a;
 
-    // if (CS == DEBUG_SEG)
-        // fatal("writememb(%08X, %08X, %02X)\n", s, a, v);
-
     mem_seg          = s;
     mem_addr         = a;
     mem_data         = v;
@@ -1061,10 +964,6 @@ void
 writememw(uint32_t s, uint32_t a, uint16_t v)
 {
     uint32_t addr = s + a;
-
-    // if ((CS == 0xf000) && (cpu_state.pc == 0xf176)) {
-        // extra_biu_log("writememw(%08X, %08X, %04X): begin\n", s, a, v);
-    // }
 
     mem_seg  = s;
     mem_addr = a;
@@ -1125,7 +1024,6 @@ pfq_write(void)
     if (fetch_word && (pfq_pos < (pfq_size - 1))) {
         /* The 8086 fetches 2 bytes at a time, and only if there's at least 2 bytes
            free in the queue. */
-        // tempw                         = readmemwf(pfq_ip);
         tempw                         = pfq_in;
         *(uint16_t *) &(pfq[pfq_pos]) = tempw;
         pfq_ip                        = (pfq_ip + 2) & 0xffff;
@@ -1135,7 +1033,6 @@ pfq_write(void)
            free in the queue. */
         if (pfq_pos >= 0)
             pfq[pfq_pos] = pfq_in & 0xff;
-            // pfq[pfq_pos] = readmembf(pfq_ip);
         pfq_ip       = (pfq_ip + 1) & 0xffff;
         pfq_pos++;
     }
@@ -1162,7 +1059,6 @@ pfq_read(void)
 void
 biu_resume_on_queue_read(void)
 {
-    // extra_biu_log("biu_resume_on_queue_read(%i, %i)\n", pfq_pos, biu_state);
     if ((biu_next_state == BIU_STATE_IDLE) && (pfq_pos == 3))
         pfq_switch_to_pf((!is_nec && (biu_next_state == BIU_STATE_EU)) ? 3 : 0);
 }
@@ -1177,8 +1073,6 @@ uint8_t
 pfq_fetchb_common(void)
 {
     uint8_t temp;
-
-    // extra_biu_log("pfq_fetch_common(%i, %i, %i)\n", biu_queue_preload, pfq_pos, biu_state);
 
     if (biu_queue_preload) {
         if (nx)
@@ -1304,7 +1198,6 @@ biu_suspend_fetch(void)
 void
 refreshread(void)
 {
-    // refresh++;
     if (dma_state == DMA_STATE_IDLE) {
         dma_state = DMA_STATE_TIMER;
         dma_state_length = 1;

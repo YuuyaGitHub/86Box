@@ -47,16 +47,6 @@
 #define do_cycle_i()         do_cycle()
 #define do_cycles(c)         wait(c)
 #define do_cycles_i(c)       do_cycles(c)
-#if 0
-#define do_cycle_nx()        nx = 1; \
-                             do_cycle()
-#define do_cycle_nx_i()      nx = 1; \
-                             do_cycle_i()
-#define do_cycles_nx(c)      nx = 1; \
-                             do_cycles(c)
-#define do_cycles_nx_i(c)    nx = 1; \
-                             do_cycles_i(c)
-#else
 #define do_cycle_nx()        nx = 1
 #define do_cycle_nx_i()      nx = 1
 #define do_cycles_nx(c)      nx = 1;    \
@@ -65,7 +55,6 @@
 #define do_cycles_nx_i(c)    nx = 1;    \
                              if (c > 1) \
                                  do_cycles(c - 1)
-#endif
 #define addr_mode_match()    cpu_mod == 3
 #define math_op(o)           cpu_alu_op = o; \
                              alu_op(bits)
@@ -364,12 +353,6 @@ x808x_log(const char *fmt, ...)
 #    define x808x_log(fmt, ...)
 #endif
 
-#ifdef ENABLE_EXTRA_EU_LOG
-#    define extra_eu_log pclog
-#else
-#    define extra_eu_log(fmt, ...)
-#endif
-
 static i8080 emulated_processor;
 static bool cpu_md_write_disable = 1;
 
@@ -442,157 +425,12 @@ set_ip(uint16_t new_ip)
 static void
 startx86(void)
 {
-#ifdef DEBUG_MODE
-    AL = 0x04;
-    cycles_forward(1);
-    outb(0x0008, AL);
-    cycles_forward(1);
-
-    AL = 0x54;
-    cycles_forward(1);
-    outb(0x0043, AL);
-    cycles_forward(1);
-    CX -= CX;
-    cycles_forward(1);
-    BL = CL;
-    cycles_forward(1);
-    AL = CL;
-    cycles_forward(1);
-    outb(0x0041, AL);
-    cycles_forward(1);
-C12:
-    AL = 0x40;
-    cycles_forward(1);
-    outb(0x0043, AL);
-    cycles_forward(1);
-    AL = inb(0x0041);
-    cycles_forward(1);
-    BL |= AL;
-    cycles_forward(1);
-    if (BL == 0xff)
-        goto C13;
-    CX--;
-    cycles_forward(1);
-    if (CX != 0x0000)
-        goto C12;
-    fatal("C12: CX = 0000\n");
-C13:
-    AL = BL;
-    cycles_forward(1);
-    CX -= CX;
-    cycles_forward(1);
-    outb(0x0041, AL);
-C14:
-    AL = 0x40;
-    cycles_forward(1);
-    outb(0x0043, AL);
-    cycles_forward(1);
-    AL = inb(0x41);
-    cycles_forward(1);
-    BL &= AL;
-    cycles_forward(1);
-    if (BL == 0x00)
-        goto C15;
-    CX--;
-    cycles_forward(1);
-    if (CX != 0x0000)
-        goto C14;
-    fatal("C14: CX = 0000\n");
-
-C15:
-    AL = 0x54;
-    cycles_forward(1);
-    outb(0x0043, AL);
-    cycles_forward(1);
-    AL = 18;
-    cycles_forward(1);
-    outb(0x0041, AL);
-    cycles_forward(1);
-    outb(0x000d, AL);
-    cycles_forward(1);
-
-    AL = 0xff;
-    cycles_forward(1);
-C16:
-    BL = AL;
-    cycles_forward(1);
-    BH = AL;
-    cycles_forward(1);
-    CX = 8;
-    cycles_forward(1);
-    DX = 0x0000;
-    cycles_forward(1);
-C17:
-    outb(DX, AL);
-    cycles_forward(1);
-    outb(DX, AL);
-    cycles_forward(1);
-    AX = 0x0101;
-    cycles_forward(1);
-    AL = inb(DX);
-    cycles_forward(1);
-    AH = AL;
-    cycles_forward(1);
-    AL = inb(DX);
-    cycles_forward(1);
-    if (BX == AX)
-        goto C18;
-    fatal("BX != AX\n");
-C18:
-    DX++;
-    cycles_forward(1);
-    CX--;
-    cycles_forward(1);
-    if (CX != 0x0000)
-        goto C17;
-    AL = ~AL;
-    cycles_forward(1);
-    if (AL == 0x00)
-        goto C16;
-
-    AL = 0xff;
-    cycles_forward(1);
-    outb(0x0001, AL);
-    cycles_forward(1);
-    outb(0x0001, AL);
-    cycles_forward(1);
-    AL = 0x58;
-    cycles_forward(1);
-    outb(0x000b, AL);
-    cycles_forward(1);
-    AL = 0x00;
-    cycles_forward(1);
-    outb(0x0008, AL);
-    cycles_forward(1);
-    outb(0x000a, AL);
-    cycles_forward(1);
-    AL = 0x41;
-    cycles_forward(1);
-    outb(0x000b, AL);
-    cycles_forward(1);
-    AL = 0x42;
-    cycles_forward(1);
-    outb(0x000b, AL);
-    cycles_forward(1);
-    AL = 0x43;
-    cycles_forward(1);
-    outb(0x000b, AL);
-    cycles_forward(1);
-#endif
-
     /* Reset takes 6 cycles before first fetch. */
-    extra_eu_log("startx86() begin:\n");
-    extra_eu_log("    [%i] do_cycle();\n", pfq_size);
     do_cycle();
-    extra_eu_log("    [%i] biu_suspend_fetch();\n", pfq_size);
     biu_suspend_fetch();
-    extra_eu_log("    [%i] do_cycles_i(2);\n", pfq_size);
     do_cycles_i(2);
-    extra_eu_log("    [%i] biu_queue_flush();\n", pfq_size);
     biu_queue_flush();
-    extra_eu_log("    [%i] do_cyles_i(3);\n", pfq_size);
     do_cycles_i(3);
-    extra_eu_log("startx86() end;\n");
 }
 
 static void
@@ -671,22 +509,8 @@ reset_808x(int hard)
         _opseg[3] = &cpu_state.seg_ds;
     }
 
-#ifdef DEBUG_MODE
-    load_cs(0x0000);
-    cpu_state.pc = 0x1000;
-    {
-        FILE *f = fopen("d:\\queen\\86boxnew\\8088raw03.bin", "rb");
-        uint32_t flen;
-        fseek(f, 0, SEEK_END);
-        flen = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        fread(&(ram[0x1000]), 1, flen, f);
-        fclose(f);
-    }
-#else
     load_cs(0xFFFF);
     cpu_state.pc = 0;
-#endif
 
     if (is_nec)
         cpu_state.flags |= MD_FLAG;
@@ -1390,25 +1214,6 @@ stos(int bits)
     DI = string_increment(bits);
 }
 
-#ifdef NEC_STUFF
-static void
-ins(int bits)
-{
-    cpu_state.eaaddr = SI;
-    cpu_io(bits, 0, cpu_state.eaaddr);
-    SI = string_increment(bits);
-}
-
-static void
-outs(int bits)
-{
-    cpu_state.eaaddr = DI;
-    cpu_data         = (bits == 16) ? AX : AL;
-    cpu_io(bits, 1, cpu_state.eaaddr);
-    DI = string_increment(bits);
-}
-#endif
-
 static uint16_t
 get_ea(void)
 {
@@ -1491,36 +1296,6 @@ farcall(uint16_t new_cs, uint16_t new_ip, int jump)
     nearcall(new_ip);
 }
 
-#ifdef UNUSED_FUNCTIONS
-static void
-handle_exception(uint16_t exception)
-{
-    uint16_t vector = exception * 4;
-    uint16_t tempf = cpu_state.flags & (is_nec ? 0x8fd7 : 0x0fd7);
-    uint16_t new_cs;
-    uint16_t new_ip;
-
-    push(&tempf);
-
-    push(&CS);
-
-    push((uint16_t *) &cpu_state.oldpc);
-
-    do_cycles_i(3);
-    cpu_state.eaaddr = vector & 0xffff;
-    new_ip           = readmemw(0, cpu_state.eaaddr);
-    do_cycle_i();
-    cpu_state.eaaddr = (cpu_state.eaaddr + 2) & 0xffff;
-    new_cs           = readmemw(0, cpu_state.eaaddr);
-
-    set_ip(new_ip);
-    load_cs(new_cs);
-
-    biu_queue_flush();
-    biu_update_pc();
-}
-#endif
-
 /* Calls an interrupt. */
 static void
 sw_int(uint16_t intr)
@@ -1571,19 +1346,6 @@ int3(void)
     do_cycles_i(4);
     intr_routine(3, 0);
 }
-
-#ifdef UNUSED_FUNCTIONS
-static void
-int_o(void)
-{
-    do_cycles_i(4);
-
-    if (cpu_state.flags & V_FLAG) {
-        do_cycles_i(2);
-        intr_routine(4, 0);
-    }
-}
-#endif
 
 /* Ditto, but for breaking into emulation mode. */
 static void
@@ -1755,9 +1517,6 @@ check_interrupts(void)
                 custom_nmi();
             } else
                 int2();
-#ifndef OLD_NMI_BEHAVIOR
-            nmi = 0;
-#endif
             return;
         }
         if ((in_hlt || (cpu_state.flags & I_FLAG)) && pic.int_pending && !noint) {
@@ -2121,13 +1880,6 @@ decode(void)
     uint8_t prefix = 0;
 
     opcode  = pfq_fetchb_common();
-#if 0
-    pclog("[%04X:%08X] opcode = %02X (AX = %04X, BX = %04X, CX = %04X, DX = %04X\n"
-          "                           DI = %04X, SI = %04X, SP = %04X, BP = %04X\n"
-          "                           DS = %04X, ES = %04X, SS = %04X, FL = %04X\n",
-                                      CS, cpu_state.pc, opcode,
-                                      AX, BX, CX, DX, DI, SI, SP, BP, DS, ES, SS, cpu_state.flags);
-#endif
 
     modrm_loaded = 0;
 
@@ -2177,13 +1929,6 @@ decode(void)
         do_cycle();
 
         opcode  = pfq_fetchb_common();
-#if 0
-        pclog("[%04X:%08X] opcode = %02X (AX = %04X, BX = %04X, CX = %04X, DX = %04X\n"
-              "                           DI = %04X, SI = %04X, SP = %04X, BP = %04X\n"
-              "                           DS = %04X, ES = %04X, SS = %04X, FL = %04X\n",
-                                          CS, cpu_state.pc, opcode,
-                                          AX, BX, CX, DX, DI, SI, SP, BP, DS, ES, SS, cpu_state.flags);
-#endif
     }
 
     if (is_nec) {
@@ -2642,7 +2387,6 @@ execvx0_6x(uint16_t *jump)
             break;
 
         case 0x61:    /* POPA/POP R */
-            // do_cycles(8);
             DI = readmemw(ss, ((SP) & 0xffff));
             biu_state_set_eu();
             SI = readmemw(ss, ((SP + 2) & 0xffff));
@@ -2860,10 +2604,6 @@ execute_instruction(void)
         nx = 0;
     }
 
-    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-        extra_eu_log("execute_instruction(); actual instruction begin\n");
-    }
-
     if (!is_nec && (opcode >= 0xc0) && (opcode <= 0xc1))
         opcode |= 0x02;
 
@@ -2961,25 +2701,13 @@ execute_instruction(void)
             nx = 1;
             /* read_operand16() */
             if (opcode & 0x04) {
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("cpu_data   = pfq_fetch(); begin\n");
-                }
                 cpu_data   = pfq_fetch();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("cpu_data   = pfq_fetch(); end\n");
-                }
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
                 if (cpu_mod != 3)
                     do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("tempw      = get_ea(); begin\n");
-                }
                 tempw      = get_ea();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("tempw      = get_ea(); end\n");
-                }
                 if (opcode & 2) {
                     cpu_dest = get_reg(cpu_reg);
                     cpu_src  = tempw;
@@ -2988,15 +2716,9 @@ execute_instruction(void)
                     cpu_src  = get_reg(cpu_reg);
                 }
             }
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                extra_eu_log("cycles; begin\n");
-            }
             do_cycles_nx_i(2);
             if (!(opcode & 0x06) && (cpu_mod != 3))
                 do_cycles_i(2);
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                extra_eu_log("cycles; end\n");
-            }
 
             /* math_op16() */
             math_op((opcode >> 3) & 7);
@@ -3006,15 +2728,8 @@ execute_instruction(void)
             else {
                 if (opcode & 0x02)
                     set_reg(cpu_reg, cpu_data);
-                else {
-                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                        extra_eu_log("set_ea(cpu_data); begin\n");
-                    }
+                else
                     set_ea(cpu_data);
-                    if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                        extra_eu_log("set_ea(cpu_data); end\n");
-                    }
-                }
             }
             break;
 
@@ -3100,7 +2815,6 @@ execute_instruction(void)
                 cpu_dest   = get_accum(bits); /* AX/AL */
                 cpu_src    = cpu_data;
             } else {
-                // do_mod_rm();
                 if (cpu_mod != 3)
                     do_cycles_i(2);    /* load_operand() */
                 tempw      = get_ea();
@@ -3210,7 +2924,6 @@ execute_instruction(void)
         case 0x82:
             bits = 8;
             /* read_opreand8() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3231,7 +2944,6 @@ execute_instruction(void)
         case 0x81: /* ADD/OR/ADC/SBB/AND/SUB/XOR/CMP r/m16, imm16 */
             bits = 16;
             /* read_opreand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3257,7 +2969,6 @@ execute_instruction(void)
         case 0x83: /* ADD/OR/ADC/SBB/AND/SUB/XOR/CMP r/m16, imm8 (sign-extended) */
             bits = 16;
             /* read_opreand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3278,7 +2989,6 @@ execute_instruction(void)
         case 0x84: /* TEST r/m8, r8 */
             bits = 8;
             /* read_operand8() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3292,7 +3002,6 @@ execute_instruction(void)
         case 0x85: /* TEST r/m16, r16 */
             bits = 16;
             /* read_operand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3306,7 +3015,6 @@ execute_instruction(void)
         case 0x86: /* XHG r8, r/m8 */
             bits = 8;
             /* read_operand8() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3325,7 +3033,6 @@ execute_instruction(void)
         case 0x87: /* XCHG r16, r/m16 */
             bits = 16;
             /* read_operand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = get_ea();
@@ -3348,7 +3055,6 @@ execute_instruction(void)
                 do_cycles_i(2);    /* load_operand() */
             do_cycle_nx();
             /* read_operand8() */
-            // do_mod_rm();
             if (opcode == 0x88)
                 tempb = get_reg(cpu_reg);
             else
@@ -3371,7 +3077,6 @@ execute_instruction(void)
                 do_cycles_i(2);    /* load_operand() */
             do_cycle_nx();
             /* read_operand16() */
-            // do_mod_rm();
             if (opcode == 0x89)
                 tempw = get_reg(cpu_reg);
             else
@@ -3390,7 +3095,6 @@ execute_instruction(void)
         case 0x8c: /* MOV r/m16, SReg; MOV SReg, r/m16 */
         case 0x8e:
             bits = 16;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             if ((opcode == 0x8c) && (cpu_mod != 3))
@@ -3414,7 +3118,6 @@ execute_instruction(void)
             break;
 
         case 0x8d: /* LEA */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_state.regs[cpu_reg].w = cpu_state.eaaddr;
@@ -3425,7 +3128,6 @@ execute_instruction(void)
                 do_cycles_i(2);    /* load_operand() */
             do_cycle_i();
             /* pop_u16() */
-            // do_mod_rm();
             cpu_src  = cpu_state.eaaddr;
             cpu_data = pop();
             do_cycle_i();
@@ -3832,7 +3534,6 @@ execute_instruction(void)
         case 0xc4: /* LES */
         case 0xc5: /* LDS */
             bits = 16;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
 
@@ -3850,7 +3551,6 @@ execute_instruction(void)
         case 0xc6: /* MOV r/m8, imm8 */
             bits = 8;
             /* read_operand8() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = pfq_fetch();
@@ -3862,7 +3562,6 @@ execute_instruction(void)
         case 0xc7: /* MOV r/m16, imm16 */
             bits = 16;
             /* read_operand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             cpu_data = pfq_fetch();
@@ -4126,7 +3825,6 @@ execute_instruction(void)
 
         case 0xd8 ... 0xdf: /* ESC - FPU instructions. */
             /* read_operand16() */
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(2);    /* load_operand() */
             tempw = cpu_state.pc;
@@ -4597,7 +4295,6 @@ execute_instruction(void)
 
         case 0xf7: /* Miscellaneuous Opcode Extensions, r/m16, imm16 */
             bits = 16;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             negate = !!in_rep;
@@ -4761,7 +4458,6 @@ execute_instruction(void)
 
         case 0xfe:
             bits = 8;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             read_ea(((rmdat & 0x38) == 0x18) || ((rmdat & 0x38) == 0x28), bits);
@@ -4897,7 +4593,6 @@ execute_instruction(void)
 
         case 0xff:
             bits = 16;
-            // do_mod_rm();
             if (cpu_mod != 3)
                 do_cycles_i(is_nec ? 1 : 2);    /* load_operand() */
             read_ea(((rmdat & 0x38) == 0x18) || ((rmdat & 0x38) == 0x28), bits);
@@ -5064,53 +4759,24 @@ execx86(int cycs)
                 clear_lock = 0;
             }
 
-#ifdef DEBUG_MODE
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_H))
-                fatal("EOF\n");
-#endif
-
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                extra_eu_log("decode(); begin\n");
-            }
             if (!is_nec || (cpu_state.flags & MD_FLAG))
                 decode();
-            if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                extra_eu_log("decode(); end\n");
-            }
 
             oldc    = cpu_state.flags & C_FLAG;
         }
 
         x808x_log("[%04X:%04X] Opcode: %02X\n", CS, cpu_state.pc, opcode);
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-            extra_eu_log("[%04X:%04X] Opcode: %02X (DX = %04X)\n", CS, cpu_state.pc, opcode, DX);
-        }
 
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-            extra_eu_log("execute_instruction(); begin\n");
-        }
         execute_instruction();
-        if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-            extra_eu_log("execute_instruction(); end\n");
-        }
 
         if (completed) {
-            if (opcode != 0xf4) {
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("finalize(); begin\n");
-                }
+            if (opcode != 0xf4)
                 finalize();
-                if ((CS == DEBUG_SEG) && (cpu_state.pc >= DEBUG_OFF_L) && (cpu_state.pc <= DEBUG_OFF_H)) {
-                    extra_eu_log("finalize(); end\n");
-                }
-            }
 
             check_interrupts();
 
             if (noint)
                 noint = 0;
-
-            // clock_end();
         }
 
 #ifdef USE_GDBSTUB

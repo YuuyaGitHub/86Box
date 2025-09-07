@@ -56,7 +56,6 @@ extern void        wait(int c);
 extern void        biu_reset(void);
 extern void        clock_end(void);
 extern void        clock_start(void);
-extern void        process_timers(void);
 extern void        cycles_forward(int c);
 extern void        cpu_io(int bits, int out, uint16_t port);
 extern void        biu_state_set_eu(void);
