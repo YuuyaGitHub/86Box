@@ -121,6 +121,8 @@
 
 typedef int (*OpFn)(uint32_t fetchdat);
 
+static void    farret(int far);
+
 const uint8_t opf[256]     = { OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 00 */
                                OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 08 */
                                OP_MEA, OP_MEA, OP_MEA, OP_MEA,      0,      0,      0,      0,   /* 10 */
@@ -247,6 +249,7 @@ static int         group_delay           = 0;
 static int         modrm_loaded          = 0;
 static int         in_0f                 = 0;
 static int         in_hlt                = 0;
+static int         retem                 = 0;
 
 static uint32_t *  ovr_seg               = NULL;
 
@@ -606,6 +609,45 @@ load_seg(uint16_t seg, x86seg *s)
     s->seg  = seg & 0xffff;
 }
 
+static uint8_t
+fetch_i8080_opcode(UNUSED(void* priv), uint16_t addr)
+{
+    return readmemb(cs, addr);
+}
+
+static uint8_t
+fetch_i8080_data(UNUSED(void* priv), uint16_t addr)
+{
+    return readmemb(ds, addr);
+}
+
+static void
+put_i8080_data(UNUSED(void* priv), uint16_t addr, uint8_t val)
+{
+    writememb(ds, addr, val);
+}
+
+static
+uint8_t i8080_port_in(UNUSED(void* priv), uint8_t port)
+{
+    cpu_data = port;
+    cpu_state.eaaddr = cpu_data;
+    cpu_io(8, 0, cpu_state.eaaddr);
+    return AL;
+}
+
+static
+void i8080_port_out(UNUSED(void* priv), uint8_t port, uint8_t val)
+{
+    cpu_data = DX;
+    AL = val;
+    do_cycle_i();
+
+    cpu_state.eaaddr = cpu_data;
+    cpu_data = AL;
+    cpu_io(8, 1, port);
+}
+
 void
 reset_808x(int hard)
 {
@@ -661,6 +703,14 @@ reset_808x(int hard)
 
     started               = 1;
     modrm_loaded          = 0;
+
+    cpu_md_write_disable = 1;
+    i8080_init(&emulated_processor);
+    emulated_processor.write_byte    = put_i8080_data;
+    emulated_processor.read_byte     = fetch_i8080_data;
+    emulated_processor.read_byte_seg = fetch_i8080_opcode;
+    emulated_processor.port_in       = i8080_port_in;
+    emulated_processor.port_out      = i8080_port_out;
 }
 
 static uint16_t
@@ -1165,6 +1215,11 @@ intr_routine(uint16_t intr, int skip_first)
     uint16_t new_cs;
     uint16_t new_ip;
 
+    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
+        sync_from_i8080();
+        x808x_log("CALLN/INT#/NMI#\n");
+    }
+
     if (!skip_first)
         do_cycle_i();
     do_cycles_i(2);
@@ -1540,7 +1595,7 @@ interrupt_brkem(uint16_t addr)
     uint16_t old_ip;
 
     do_cycles_i(3);
-    cpu_state.eaaddr = addr;
+    cpu_state.eaaddr = addr << 2;
     new_ip           = readmemw(0, cpu_state.eaaddr);
     do_cycle_i();
     cpu_state.eaaddr = (cpu_state.eaaddr + 2) & 0xffff;
@@ -1575,19 +1630,20 @@ retem_i8080(void)
 {
     sync_from_i8080();
 
-    biu_suspend_fetch();
-    biu_queue_flush();
-
-    set_ip(pop());
-    load_cs(pop());
+    do_cycle_i();
+    farret(1);
+    /* pop_flags() */
     cpu_state.flags = pop();
+    do_cycle_i();
+
+    noint      = 1;
+    nmi_enable = 1;
 
     emulated_processor.iff = !!(cpu_state.flags & I_FLAG);
 
     cpu_md_write_disable = 1;
 
-    noint      = 1;
-    nmi_enable = 1;
+    retem = 1;
 
     x808x_log("RETEM mode\n");
 }
@@ -1595,6 +1651,9 @@ retem_i8080(void)
 void
 interrupt_808x(uint16_t addr)
 {
+    biu_suspend_fetch();
+    do_cycles_i(2);
+
     intr_routine(addr, 0);
 }
 
@@ -1659,11 +1718,6 @@ bus_pic_ack(void)
 static void
 hw_int(uint16_t vector)
 {
-    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
-        sync_from_i8080();
-        x808x_log("CALLN/INT#/NMI#\n");
-    }
-
     biu_suspend_fetch();
     do_cycles_i(2);
 
@@ -1673,11 +1727,6 @@ hw_int(uint16_t vector)
 static void
 int1(void)
 {
-    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
-        sync_from_i8080();
-        x808x_log("CALLN/INT#/NMI#\n");
-    }
-
     do_cycles_i(2);
     intr_routine(1, 1);
 }
@@ -1685,11 +1734,6 @@ int1(void)
 static void
 int2(void)
 {
-    if (!(cpu_state.flags & MD_FLAG) && is_nec) {
-        sync_from_i8080();
-        x808x_log("CALLN/INT#/NMI#\n");
-    }
-
     do_cycles_i(2);
     intr_routine(2, 1);
 }
@@ -1770,7 +1814,7 @@ iret_routine(void)
     do_cycle_i();
     farret(1);
     /* pop_flags() */
-    if (is_nec)
+    if (is_nec && cpu_md_write_disable)
         cpu_state.flags = pop() | 0x8002;
     else
         cpu_state.flags = pop() | 0x0002;
@@ -2826,6 +2870,9 @@ execute_instruction(void)
     if (is_nec && !(cpu_state.flags & MD_FLAG)) {
         i8080_step(&emulated_processor);
         set_if(emulated_processor.iff);
+        if (retem)
+            jump = 1;
+        retem = 0;
         do_cycles(emulated_processor.cyc);
         emulated_processor.cyc = 0;
     } else if (is_nec && in_0f)
@@ -3430,10 +3477,11 @@ execute_instruction(void)
 
         case 0x9d: /* POPF */
             /* pop_flags() */
-            if (is_nec)
+            if (is_nec && cpu_md_write_disable)
                 cpu_state.flags = pop() | 0x8002;
             else
                 cpu_state.flags = pop() | 0x0002;
+            sync_to_i8080();
             break;
 
         case 0x9e: /* SAHF */
@@ -3895,6 +3943,8 @@ execute_instruction(void)
 
         case 0xcf: /* IRET */
             iret_routine();
+            if (is_nec && !(cpu_state.flags & MD_FLAG))
+                sync_to_i8080();
             jump = 1;
             break;
 
