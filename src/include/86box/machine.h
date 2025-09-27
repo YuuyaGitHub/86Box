@@ -992,6 +992,9 @@ extern int             machine_at_cu430hx_init(const machine_t *);
 extern const device_t  tc430hx_device;
 #endif
 extern int             machine_at_tc430hx_init(const machine_t *);
+#ifdef EMU_DEVICE_H
+extern const device_t  m7shi_device;
+#endif
 extern int             machine_at_m7shi_init(const machine_t *);
 extern int             machine_at_epc2102_init(const machine_t *);
 extern int             machine_at_pcv90_init(const machine_t *);
@@ -1066,6 +1069,10 @@ extern int             machine_at_m560_init(const machine_t *);
 /* m_at_sockets7.c */
 /* ALi ALADDiN V */
 extern int             machine_at_p5a_init(const machine_t *);
+#ifdef EMU_DEVICE_H
+extern const device_t  fr510_device;
+#endif
+extern int             machine_at_fr510_init(const machine_t *);
 extern int             machine_at_m579_init(const machine_t *);
 extern int             machine_at_gwlucas_init(const machine_t *);
 extern int             machine_at_5aa_init(const machine_t *);
@@ -1114,6 +1121,9 @@ extern int             machine_at_p65up5_cpknd_init(const machine_t *);
 extern int             machine_at_kn97_init(const machine_t *);
 
 /* i440LX */
+#ifdef EMU_DEVICE_H
+extern const device_t  lx6_device;
+#endif
 extern int             machine_at_lx6_init(const machine_t *);
 extern int             machine_at_optiplexgxa_init(const machine_t *);
 extern int             machine_at_spitfire_init(const machine_t *);

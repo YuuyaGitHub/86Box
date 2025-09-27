@@ -15,6 +15,8 @@
 
 #include "qt_vmmanager_protocol.hpp"
 
+extern QTimer discordupdate;
+
 class MediaMenu;
 class RendererStack;
 
@@ -177,8 +179,8 @@ private:
     std::shared_ptr<MediaMenu>     mm;
 
     static bool s_adjustingForce43; // guard against recursion
-	void adjustForForce43(const QSize &newWinSize);
-    
+    void applyContentLayoutForCurrentState();
+
 	void updateShortcuts();
     void     processKeyboardInput(bool down, uint32_t keycode);
 #ifdef Q_OS_MACOS
