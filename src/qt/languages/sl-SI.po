@@ -1,8 +1,16 @@
 msgid ""
 msgstr ""
+"PO-Revision-Date: 2025-11-29 00:34+0000\n"
+"Last-Translator: OBattler <oubattler@gmail.com>\n"
+"Language-Team: Slovenian <https://weblate.86box.net/projects/86box/86box/sl/>"
+"\n"
+"Language: sl-SI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
+"n%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 5.12.2\n"
 "X-Language: sl_SI\n"
 "X-Source-Language: en_US\n"
 
@@ -272,36 +280,6 @@ msgstr "Naloži zadnjo sliko"
 
 msgid "&Folder..."
 msgstr "&Mapa..."
-
-msgid "Target &framerate"
-msgstr "&Ciljno št. kadrov na sekundo"
-
-msgid "&Sync with video"
-msgstr "&Sinhroniziraj z videom"
-
-msgid "&25 fps"
-msgstr "&25 fps"
-
-msgid "&30 fps"
-msgstr "&30 fps"
-
-msgid "&50 fps"
-msgstr "&50 fps"
-
-msgid "&60 fps"
-msgstr "&60 fps"
-
-msgid "&75 fps"
-msgstr "&75 fps"
-
-msgid "&VSync"
-msgstr "&VSync"
-
-msgid "&Select shader..."
-msgstr "&Izberi senčilnik..."
-
-msgid "&Remove shader"
-msgstr "&Odstrani senčilnik"
 
 msgid "Preferences"
 msgstr "Možnosti"
@@ -603,9 +581,6 @@ msgstr "Kanal:"
 msgid "ID:"
 msgstr "ID:"
 
-msgid "&Specify..."
-msgstr "&Določi..."
-
 msgid "Sectors:"
 msgstr "Sektorji:"
 
@@ -689,9 +664,6 @@ msgstr "Naprava ISABugger"
 
 msgid "POST card"
 msgstr "Kartica POST"
-
-msgid "86Box"
-msgstr "86Box"
 
 msgid "Error"
 msgstr "Napaka"
@@ -852,8 +824,17 @@ msgstr "Najdena ni bila nobena naprava PCap"
 msgid "Invalid PCap device"
 msgstr "Neveljavna naprava PCap"
 
+msgid "Generic paddle controller(s)"
+msgstr "Generični krmilnik z lopatico"
+
+msgid "2-axis, 1-button joystick(s)"
+msgstr "Igralna palica z 2 osema, 1 gumboma"
+
 msgid "2-axis, 2-button joystick(s)"
 msgstr "Igralna palica z 2 osema, 2 gumboma"
+
+msgid "2-axis, 3-button joystick"
+msgstr "Igralna palica z 2 osema, 3 gumbi"
 
 msgid "2-axis, 4-button joystick"
 msgstr "Igralna palica z 2 osema, 4 gumbi"
@@ -865,19 +846,100 @@ msgid "2-axis, 8-button joystick"
 msgstr "Igralna palica z 2 osema, 8 gumbi"
 
 msgid "3-axis, 2-button joystick"
-msgstr "Igralna palica s 3 osmi, 2 gumboma"
+msgstr "Igralna palica s 3 osmi, 2 gumbi"
+
+msgid "3-axis, 3-button joystick"
+msgstr "Igralna palica s 3 osmi, 3 gumbi"
 
 msgid "3-axis, 4-button joystick"
 msgstr "Igralna palica s 3 osmi, 4 gumbi"
 
+msgid "4-axis, 2-button joystick"
+msgstr "Igralna palica s 4 osmi, 2 gumbi"
+
+msgid "4-axis, 3-button joystick"
+msgstr "Igralna palica s 4 osmi, 3 gumbi"
+
 msgid "4-axis, 4-button joystick"
 msgstr "Igralna palica s 4 osmi, 4 gumbi"
+
+msgid "2-button gamepad(s)"
+msgstr "Igralna ploščica z 2 gumboma"
+
+msgid "3-button gamepad"
+msgstr "Igralna ploščica s 3 gumbi"
+
+msgid "4-button gamepad"
+msgstr "Igralna ploščica s 4 gumbi"
+
+msgid "6-button gamepad"
+msgstr "Igralna ploščica s 6 gumbi"
+
+msgid "Gravis PC GamePad"
+msgstr "Gravis PC GamePad"
+
+msgid "2-button flight yoke"
+msgstr "Letalski krmilni drog z 2 gumbi"
+
+msgid "3-button flight yoke"
+msgstr "Letalski krmilni drog z 3 gumbi"
+
+msgid "4-button flight yoke"
+msgstr "Letalski krmilni drog s 4 gumbi"
+
+msgid "2-button flight yoke with throttle"
+msgstr "Letalski krmilni drog z 2 gumbi gumboma ročico za plin"
+
+msgid "3-button flight yoke with throttle"
+msgstr "Letalski krmilni drog s 3 gumbi z ročico za plin"
+
+msgid "4-button flight yoke with throttle"
+msgstr "Letalski krmilni drog s 4 gumbi z ročico za plin"
+
+msgid "Steering wheel (3-axis, 2-button)"
+msgstr "Volan s 3 osmi, 2 gumbi"
+
+msgid "Steering wheel (3-axis, 3-button)"
+msgstr "Volan s 3 osmi, 3 gumbi"
+
+msgid "Steering wheel (3-axis, 4-button)"
+msgstr "Volan s 3 osmi, 4 gumbi"
+
+msgid "CH Flightstick"
+msgstr "CH Flightstick"
+
+msgid "CH Flightstick + CH Pedals"
+msgstr "CH Flightstick + CH Pedals"
+
+msgid "CH Flightstick + CH Pedals Pro"
+msgstr "CH Flightstick + CH Pedals Pro"
 
 msgid "CH Flightstick Pro"
 msgstr "CH Flightstick Pro"
 
 msgid "CH Flightstick Pro + CH Pedals"
 msgstr "CH Flightstick Pro + CH Pedals"
+
+msgid "CH Flightstick Pro + CH Pedals Pro"
+msgstr "CH Flightstick Pro + CH Pedals Pro"
+
+msgid "CH Virtual Pilot"
+msgstr "CH Virtual Pilot"
+
+msgid "CH Virtual Pilot + CH Pedals"
+msgstr "CH Virtual Pilot + CH Pedals"
+
+msgid "CH Virtual Pilot + CH Pedals Pro"
+msgstr "CH Virtual Pilot + CH Pedals Pro"
+
+msgid "CH Virtual Pilot Pro"
+msgstr "CH Virtual Pilot Pro"
+
+msgid "CH Virtual Pilot Pro + CH Pedals"
+msgstr "CH Virtual Pilot Pro + CH Pedals"
+
+msgid "CH Virtual Pilot Pro + CH Pedals Pro"
+msgstr "CH Virtual Pilot Pro + CH Pedals Pro"
 
 msgid "Microsoft SideWinder Pad"
 msgstr "Microsoft SideWinder Pad"
@@ -888,26 +950,11 @@ msgstr "Thrustmaster Flight Control System"
 msgid "Thrustmaster FCS + Rudder Control System"
 msgstr "Thrustmaster FCS + Rudder Control System"
 
-msgid "2-button gamepad(s)"
-msgstr "Igralna ploščica z 2 gumboma"
+msgid "Thrustmaster Formula T1/T2 with adapter"
+msgstr "Thrustmaster Formula T1/T2 s pretvornikom"
 
-msgid "2-button flight yoke"
-msgstr "Letalski krmilni drog z 2 gumbi"
-
-msgid "4-button gamepad"
-msgstr "Igralna ploščica s 4 gumbi"
-
-msgid "4-button flight yoke"
-msgstr "Letalski krmilni drog s 4 gumbi"
-
-msgid "2-button flight yoke with throttle"
-msgstr "Letalski krmilni drog z 2 gumbi gumboma ročico za plin"
-
-msgid "4-button flight yoke with throttle"
-msgstr "Letalski krmilni drog s 4 gumbi z ročico za plin"
-
-msgid "Win95 Steering Wheel (3-axis, 4-button)"
-msgstr "Volan Win95 s 3 osmi, 4 gumbi"
+msgid "Thrustmaster Formula T1/T2 without adapter"
+msgstr "Thrustmaster Formula T1/T2 brez pretvornika"
 
 msgid "None"
 msgstr "Brez"
@@ -978,11 +1025,8 @@ msgstr "To bo ponovno zagnalo emuliran sistem."
 msgid "Save"
 msgstr "Shrani"
 
-msgid "About 86Box"
-msgstr "O programu 86Box"
-
-msgid "86Box v"
-msgstr "86Box v"
+msgid "About %1"
+msgstr "O programu %1"
 
 msgid "An emulator of old computers\n\nAuthors: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne, and others.\n\nWith previous core contributions from Sarah Walker, leilei, JohnElliott, greatpsycho, and others.\n\nReleased under the GNU General Public License version 2 or later. See LICENSE for more information."
 msgstr "Emulator starih računalnikov\n\nAvtorji: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne in drugi.\n\nS prejšnjimi prispevki Sarah Walker, leilei, JohnElliott, greatpsycho in drugih.\n\nIzdano pod licenco GNU General Public License različica 2 ali novejša. Glej datoteko LICENSE za več informacij."
@@ -1228,7 +1272,7 @@ msgid "Open p&rinter tray..."
 msgstr "Odpri pladenj &tiskalnika..."
 
 msgid "Set &icon..."
-msgstr "Izberi &ikono"
+msgstr "Izberi &ikono..."
 
 msgid "Select an icon"
 msgstr "Izberi ikono"
@@ -1332,8 +1376,8 @@ msgstr "Sistem"
 msgid "Storage"
 msgstr "Shramba"
 
-msgid "Disk %1: "
-msgstr "Disk %1: "
+msgid "Disk %1:"
+msgstr "Disk %1:"
 
 msgid "No disks"
 msgstr "Ni diskov"
@@ -1746,8 +1790,8 @@ msgstr "Premaknil sem jo"
 msgid "I Copied It"
 msgstr "Kopiral sem jo"
 
-msgid "86Box Monitor #"
-msgstr "86Box Monitor "
+msgid "86Box Monitor #%1"
+msgstr "86Box Monitor %1"
 
 msgid "No MCA devices."
 msgstr "Ni naprav MCA."
@@ -1781,6 +1825,9 @@ msgstr "Mrežna kartica:"
 
 msgid "VDE Socket:"
 msgstr "Vtičnica VDE:"
+
+msgid "TAP Bridge Device:"
+msgstr "Mostovna naprava TAP:"
 
 msgid "86Box Unit Tester"
 msgstr "Tester enote 86Box"
@@ -2157,12 +2204,6 @@ msgstr "Jakost filtra SID-a"
 msgid "Surround module"
 msgstr "Prostorski modul"
 
-msgid "CODEC"
-msgstr "CODEC"
-
-msgid "Raise CODEC interrupt on CODEC setup (needed by some drivers)"
-msgstr "Dvigni prekinitev za CODEC ob nastavitvi CODEC-a (to potrebujejo nekateri gonilniki)"
-
 msgid "SB Address"
 msgstr "Naslov SB"
 
@@ -2177,6 +2218,18 @@ msgstr "IRQ WSS"
 
 msgid "WSS DMA"
 msgstr "DMA WSS"
+
+msgid "RTC IRQ"
+msgstr "IRQ ure v realnem času"
+
+msgid "RTC Port Address"
+msgstr "Naslov ure v realnem času"
+
+msgid "Onboard RTC"
+msgstr "Integrirana ura v realnem času"
+
+msgid "Not installed"
+msgstr "Ni nameščen"
 
 msgid "Enable OPL"
 msgstr "Omogoči OPL"
@@ -2447,9 +2500,6 @@ msgstr "24 MB"
 
 msgid "SigmaTel STAC9721T (stereo)"
 msgstr "SigmaTel STAC9721T (stereo)"
-
-msgid "Classic"
-msgstr "Klasični"
 
 msgid "256 KB"
 msgstr "256 KB"
@@ -2739,9 +2789,6 @@ msgstr "Napaka GLSL"
 msgid "Could not load shader: %1"
 msgstr "Ni bilo mogoče naložiti senčilnika: %1"
 
-msgid "OpenGL version 3.0 or greater is required. Current GLSL version is %1.%2"
-msgstr "Potrebna je OpenGL različica 3.0 ali novejša. Trenutna različica GLSL je %1.%2"
-
 msgid "Could not load texture: %1"
 msgstr "Ni bilo mogoče naložiti teksture: %1"
 
@@ -2770,7 +2817,7 @@ msgid "Could not load file %1"
 msgstr "Ni bilo mogoče naložiti datoteke %1"
 
 msgid "Key Bindings:"
-msgstr "Kombinacije tipk"
+msgstr "Kombinacije tipk:"
 
 msgid "Action"
 msgstr "Dejanje"
@@ -2804,6 +2851,9 @@ msgstr "Pošlji Control+Alt+Escape"
 
 msgid "Toggle fullscreen"
 msgstr "Preklopi celozaslonski način"
+
+msgid "Toggle UI in fullscreen"
+msgstr "Preklopi uporabniški vmesnik v načinu polnega zaslona"
 
 msgid "Screenshot"
 msgstr "Zajem zaslona"
@@ -2993,3 +3043,6 @@ msgstr "Svetloba"
 
 msgid "Dark"
 msgstr "Temno"
+
+msgid "Search:"
+msgstr "Išči:"

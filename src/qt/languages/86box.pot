@@ -273,36 +273,6 @@ msgstr ""
 msgid "&Folder..."
 msgstr ""
 
-msgid "Target &framerate"
-msgstr ""
-
-msgid "&Sync with video"
-msgstr ""
-
-msgid "&25 fps"
-msgstr ""
-
-msgid "&30 fps"
-msgstr ""
-
-msgid "&50 fps"
-msgstr ""
-
-msgid "&60 fps"
-msgstr ""
-
-msgid "&75 fps"
-msgstr ""
-
-msgid "&VSync"
-msgstr ""
-
-msgid "&Select shader..."
-msgstr ""
-
-msgid "&Remove shader"
-msgstr ""
-
 msgid "Preferences"
 msgstr ""
 
@@ -603,9 +573,6 @@ msgstr ""
 msgid "ID:"
 msgstr ""
 
-msgid "&Specify..."
-msgstr ""
-
 msgid "Sectors:"
 msgstr ""
 
@@ -688,9 +655,6 @@ msgid "ISABugger device"
 msgstr ""
 
 msgid "POST card"
-msgstr ""
-
-msgid "86Box"
 msgstr ""
 
 msgid "Error"
@@ -852,7 +816,16 @@ msgstr ""
 msgid "Invalid PCap device"
 msgstr ""
 
+msgid "Generic paddle controller(s)"
+msgstr ""
+
+msgid "2-axis, 1-button joystick(s)"
+msgstr ""
+
 msgid "2-axis, 2-button joystick(s)"
+msgstr ""
+
+msgid "2-axis, 3-button joystick"
 msgstr ""
 
 msgid "2-axis, 4-button joystick"
@@ -867,16 +840,97 @@ msgstr ""
 msgid "3-axis, 2-button joystick"
 msgstr ""
 
+msgid "3-axis, 3-button joystick"
+msgstr ""
+
 msgid "3-axis, 4-button joystick"
 msgstr ""
 
+msgid "4-axis, 2-button joystick"
+msgstr ""
+
+msgid "4-axis, 3-button joystick"
+msgstr ""
+
 msgid "4-axis, 4-button joystick"
+msgstr ""
+
+msgid "2-button gamepad(s)"
+msgstr ""
+
+msgid "3-button gamepad"
+msgstr ""
+
+msgid "4-button gamepad"
+msgstr ""
+
+msgid "6-button gamepad"
+msgstr ""
+
+msgid "Gravis PC GamePad"
+msgstr ""
+
+msgid "2-button flight yoke"
+msgstr ""
+
+msgid "3-button flight yoke"
+msgstr ""
+
+msgid "4-button flight yoke"
+msgstr ""
+
+msgid "2-button flight yoke with throttle"
+msgstr ""
+
+msgid "3-button flight yoke with throttle"
+msgstr ""
+
+msgid "4-button flight yoke with throttle"
+msgstr ""
+
+msgid "Steering wheel (3-axis, 2-button)"
+msgstr ""
+
+msgid "Steering wheel (3-axis, 3-button)"
+msgstr ""
+
+msgid "Steering wheel (3-axis, 4-button)"
+msgstr ""
+
+msgid "CH Flightstick"
+msgstr ""
+
+msgid "CH Flightstick + CH Pedals"
+msgstr ""
+
+msgid "CH Flightstick + CH Pedals Pro"
 msgstr ""
 
 msgid "CH Flightstick Pro"
 msgstr ""
 
 msgid "CH Flightstick Pro + CH Pedals"
+msgstr ""
+
+msgid "CH Flightstick Pro + CH Pedals Pro"
+msgstr ""
+
+msgid "CH Virtual Pilot"
+msgstr ""
+
+msgid "CH Virtual Pilot + CH Pedals"
+msgstr ""
+
+msgid "CH Virtual Pilot + CH Pedals Pro"
+msgstr ""
+
+msgid "CH Virtual Pilot Pro"
+msgstr ""
+
+msgid "CH Virtual Pilot Pro + CH Pedals"
+msgstr ""
+
+msgid "CH Virtual Pilot Pro + CH Pedals Pro"
 msgstr ""
 
 msgid "Microsoft SideWinder Pad"
@@ -888,25 +942,10 @@ msgstr ""
 msgid "Thrustmaster FCS + Rudder Control System"
 msgstr ""
 
-msgid "2-button gamepad(s)"
+msgid "Thrustmaster Formula T1/T2 with adapter"
 msgstr ""
 
-msgid "2-button flight yoke"
-msgstr ""
-
-msgid "4-button gamepad"
-msgstr ""
-
-msgid "4-button flight yoke"
-msgstr ""
-
-msgid "2-button flight yoke with throttle"
-msgstr ""
-
-msgid "4-button flight yoke with throttle"
-msgstr ""
-
-msgid "Win95 Steering Wheel (3-axis, 4-button)"
+msgid "Thrustmaster Formula T1/T2 without adapter"
 msgstr ""
 
 msgid "None"
@@ -978,10 +1017,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "About 86Box"
-msgstr ""
-
-msgid "86Box v"
+msgid "About %1"
 msgstr ""
 
 msgid "An emulator of old computers\n\nAuthors: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne, and others.\n\nWith previous core contributions from Sarah Walker, leilei, JohnElliott, greatpsycho, and others.\n\nReleased under the GNU General Public License version 2 or later. See LICENSE for more information."
@@ -1332,7 +1368,7 @@ msgstr ""
 msgid "Storage"
 msgstr ""
 
-msgid "Disk %1: "
+msgid "Disk %1:"
 msgstr ""
 
 msgid "No disks"
@@ -1746,7 +1782,7 @@ msgstr ""
 msgid "I Copied It"
 msgstr ""
 
-msgid "86Box Monitor #"
+msgid "86Box Monitor #%1"
 msgstr ""
 
 msgid "No MCA devices."
@@ -1780,6 +1816,9 @@ msgid "Adapter:"
 msgstr ""
 
 msgid "VDE Socket:"
+msgstr ""
+
+msgid "TAP Bridge Device:"
 msgstr ""
 
 msgid "86Box Unit Tester"
@@ -2157,12 +2196,6 @@ msgstr ""
 msgid "Surround module"
 msgstr ""
 
-msgid "CODEC"
-msgstr ""
-
-msgid "Raise CODEC interrupt on CODEC setup (needed by some drivers)"
-msgstr ""
-
 msgid "SB Address"
 msgstr ""
 
@@ -2176,6 +2209,18 @@ msgid "WSS IRQ"
 msgstr ""
 
 msgid "WSS DMA"
+msgstr ""
+
+msgid "RTC IRQ"
+msgstr ""
+
+msgid "RTC Port Address"
+msgstr ""
+
+msgid "Onboard RTC"
+msgstr ""
+
+msgid "Not installed"
 msgstr ""
 
 msgid "Enable OPL"
@@ -2446,9 +2491,6 @@ msgid "24 MB"
 msgstr ""
 
 msgid "SigmaTel STAC9721T (stereo)"
-msgstr ""
-
-msgid "Classic"
 msgstr ""
 
 msgid "256 KB"
@@ -2739,9 +2781,6 @@ msgstr ""
 msgid "Could not load shader: %1"
 msgstr ""
 
-msgid "OpenGL version 3.0 or greater is required. Current GLSL version is %1.%2"
-msgstr ""
-
 msgid "Could not load texture: %1"
 msgstr ""
 
@@ -2803,6 +2842,9 @@ msgid "Send Control+Alt+Escape"
 msgstr ""
 
 msgid "Toggle fullscreen"
+msgstr ""
+
+msgid "Toggle UI in fullscreen"
 msgstr ""
 
 msgid "Screenshot"
@@ -2988,11 +3030,11 @@ msgstr ""
 msgid "Color scheme"
 msgstr ""
 
-msgid "System"
-msgstr ""
-
 msgid "Light"
 msgstr ""
 
 msgid "Dark"
+msgstr ""
+
+msgid "Search:"
 msgstr ""

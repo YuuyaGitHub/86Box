@@ -8,8 +8,6 @@
  *
  *          Software renderer module.
  *
- *
- *
  * Authors: Joakim L. Gilje <jgilje@jgilje.net>
  *          Cacodemon345
  *          Teemu Korhonen
@@ -32,7 +30,8 @@ SoftwareRenderer::SoftwareRenderer(QWidget *parent)
 #ifdef __HAIKU__
     : QWidget(parent)
 #else
-    : QWindow(parent->windowHandle()), m_backingStore(new QBackingStore(this))
+    : QWindow(parent->windowHandle())
+    , m_backingStore(new QBackingStore(this))
 #endif
 {
     RendererCommon::parentWidget = parent;
@@ -74,7 +73,7 @@ SoftwareRenderer::render()
 }
 
 void
-SoftwareRenderer::exposeEvent(QExposeEvent* event)
+SoftwareRenderer::exposeEvent(QExposeEvent *event)
 {
     render();
 }
@@ -83,7 +82,7 @@ void
 SoftwareRenderer::onBlit(int buf_idx, int x, int y, int w, int h)
 {
     /* TODO: should look into deleteLater() */
-    auto  tval    = this;
+    auto tval = this;
     if ((void *) tval == nullptr)
         return;
     auto origSource = source;

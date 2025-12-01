@@ -273,36 +273,6 @@ msgstr "Last inn forrige diskfil"
 msgid "&Folder..."
 msgstr "&Mappe..."
 
-msgid "Target &framerate"
-msgstr "Mål-&bildefrekvens"
-
-msgid "&Sync with video"
-msgstr "&Synkroniser med video"
-
-msgid "&25 fps"
-msgstr "&25 fps"
-
-msgid "&30 fps"
-msgstr "&30 fps"
-
-msgid "&50 fps"
-msgstr "&50 fps"
-
-msgid "&60 fps"
-msgstr "&60 fps"
-
-msgid "&75 fps"
-msgstr "&75 fps"
-
-msgid "&VSync"
-msgstr "&VSync"
-
-msgid "&Select shader..."
-msgstr "&Velg shader..."
-
-msgid "&Remove shader"
-msgstr "&Fjern shader"
-
 msgid "Preferences"
 msgstr "Valg"
 
@@ -328,7 +298,7 @@ msgid "&Default"
 msgstr "&Standard"
 
 msgid "Language:"
-msgstr "Språk"
+msgstr "Språk:"
 
 msgid "Gain"
 msgstr "Forsterkning"
@@ -603,9 +573,6 @@ msgstr "Kanal:"
 msgid "ID:"
 msgstr "ID:"
 
-msgid "&Specify..."
-msgstr "&Angi..."
-
 msgid "Sectors:"
 msgstr "Sektorer:"
 
@@ -689,9 +656,6 @@ msgstr "ISABugger-enhet"
 
 msgid "POST card"
 msgstr "POST-kort"
-
-msgid "86Box"
-msgstr "86Box"
 
 msgid "Error"
 msgstr "Feil"
@@ -852,8 +816,17 @@ msgstr "Ingen PCap-enheter funnet"
 msgid "Invalid PCap device"
 msgstr "Ugyldig PCap-enhet"
 
+msgid "Generic paddle controller(s)"
+msgstr "Generisk padle-kontroller(e)"
+
+msgid "2-axis, 1-button joystick(s)"
+msgstr "2-akset, 1-knapps styrespak(er)"
+
 msgid "2-axis, 2-button joystick(s)"
 msgstr "2-akset, 2-knapps styrespak(er)"
+
+msgid "2-axis, 3-button joystick"
+msgstr "2-akset, 3-knapps styrespak"
 
 msgid "2-axis, 4-button joystick"
 msgstr "2-akset, 4-knapps styrespak"
@@ -867,17 +840,98 @@ msgstr "2-akset, 8-knapps styrespak"
 msgid "3-axis, 2-button joystick"
 msgstr "3-akset, 2-knapps styrespak"
 
+msgid "3-axis, 3-button joystick"
+msgstr "3-akset, 3-knapps styrespak"
+
 msgid "3-axis, 4-button joystick"
 msgstr "3-akset, 4-knapps styrespak"
 
+msgid "4-axis, 2-button joystick"
+msgstr "4-akset, 2-knapps styrespak"
+
+msgid "4-axis, 3-button joystick"
+msgstr "4-akset, 3-knapps styrespak"
+
 msgid "4-axis, 4-button joystick"
 msgstr "4-akset, 4-knapps styrespak"
+
+msgid "2-button gamepad(s)"
+msgstr "2-knapps gamepad(er)"
+
+msgid "3-button gamepad"
+msgstr "3-knapps gamepad"
+
+msgid "4-button gamepad"
+msgstr "4-knapps gamepad"
+
+msgid "6-button gamepad"
+msgstr "6-knapps gamepad"
+
+msgid "Gravis PC GamePad"
+msgstr "Gravis PC GamePad"
+
+msgid "2-button flight yoke"
+msgstr "2-knapps flystyre"
+
+msgid "3-button flight yoke"
+msgstr "3-knapps flystyre"
+
+msgid "4-button flight yoke"
+msgstr "4-knapps flystyre"
+
+msgid "2-button flight yoke with throttle"
+msgstr "2-knapps flystyre med gass"
+
+msgid "3-button flight yoke with throttle"
+msgstr "3-knapps flystyre med gass"
+
+msgid "4-button flight yoke with throttle"
+msgstr "4-knapps flystyre med gass"
+
+msgid "Steering wheel (3-axis, 2-button)"
+msgstr "Ratt (3-akset, 3-knapps)"
+
+msgid "Steering wheel (3-axis, 3-button)"
+msgstr "Ratt (3-akset, 3-knapps)"
+
+msgid "Steering wheel (3-axis, 4-button)"
+msgstr "Ratt (3-akset, 4-knapps)"
+
+msgid "CH Flightstick"
+msgstr "CH Flightstick"
+
+msgid "CH Flightstick + CH Pedals"
+msgstr "CH Flightstick + CH Pedaler"
+
+msgid "CH Flightstick + CH Pedals Pro"
+msgstr "CH Flightstick + CH Pedaler Pro"
 
 msgid "CH Flightstick Pro"
 msgstr "CH Flightstick Pro"
 
 msgid "CH Flightstick Pro + CH Pedals"
 msgstr "CH Flightstick Pro + CH Pedaler"
+
+msgid "CH Flightstick Pro + CH Pedals Pro"
+msgstr "CH Flightstick Pro + CH Pedaler Pro"
+
+msgid "CH Virtual Pilot"
+msgstr "CH Virtual Pilot"
+
+msgid "CH Virtual Pilot + CH Pedals"
+msgstr "CH Virtual Pilot + CH Pedaler"
+
+msgid "CH Virtual Pilot + CH Pedals Pro"
+msgstr "CH Virtual Pilot + CH Pedaler Pro"
+
+msgid "CH Virtual Pilot Pro"
+msgstr "CH Virtual Pilot Pro"
+
+msgid "CH Virtual Pilot Pro + CH Pedals"
+msgstr "CH Virtual Pilot Pro + CH Pedaler"
+
+msgid "CH Virtual Pilot Pro + CH Pedals Pro"
+msgstr "CH Virtual Pilot Pro + CH Pedaler Pro"
 
 msgid "Microsoft SideWinder Pad"
 msgstr "Microsoft SideWinder Pad"
@@ -888,26 +942,11 @@ msgstr "Thrustmaster Flight Control System"
 msgid "Thrustmaster FCS + Rudder Control System"
 msgstr "Thrustmaster FCS + Ror-kontrollsystem"
 
-msgid "2-button gamepad(s)"
-msgstr "2-knapps gamepad(er)"
+msgid "Thrustmaster Formula T1/T2 with adapter"
+msgstr "Thrustmaster Formula T1/T2 med adapter"
 
-msgid "2-button flight yoke"
-msgstr "2-knapps flystyre"
-
-msgid "4-button gamepad"
-msgstr "4-knapps gamepad"
-
-msgid "4-button flight yoke"
-msgstr "4-knapps flystyre"
-
-msgid "2-button flight yoke with throttle"
-msgstr "2-knapps flystyre med gass"
-
-msgid "4-button flight yoke with throttle"
-msgstr "4-knapps flystyre med gass"
-
-msgid "Win95 Steering Wheel (3-axis, 4-button)"
-msgstr "Win95 Ratt (3-akset, 4-knapps)"
+msgid "Thrustmaster Formula T1/T2 without adapter"
+msgstr "Thrustmaster Formula T1/T2 uten adapter"
 
 msgid "None"
 msgstr "Ingen"
@@ -978,11 +1017,8 @@ msgstr "Dette vil hard-resette den emulerte maskinen."
 msgid "Save"
 msgstr "Lagre"
 
-msgid "About 86Box"
-msgstr "Om 86Box"
-
-msgid "86Box v"
-msgstr "86Box v"
+msgid "About %1"
+msgstr "Om %1"
 
 msgid "An emulator of old computers\n\nAuthors: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne, and others.\n\nWith previous core contributions from Sarah Walker, leilei, JohnElliott, greatpsycho, and others.\n\nReleased under the GNU General Public License version 2 or later. See LICENSE for more information."
 msgstr "En emulator for gamle datamaskiner\n\nForfattere: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne og andre.\n\nMed tidligere kjernebidrag fra Sarah Walker, leilei, JohnElliott, greatpsycho og andre.\n\nUtgitt under GNU General Public License versjon 2 eller senere. Se LICENSE for mer informasjon."
@@ -1332,7 +1368,7 @@ msgstr "System"
 msgid "Storage"
 msgstr "Lagring"
 
-msgid "Disk %1: "
+msgid "Disk %1:"
 msgstr "Disk %1:"
 
 msgid "No disks"
@@ -1746,8 +1782,8 @@ msgstr "Jeg flyttet den"
 msgid "I Copied It"
 msgstr "Jeg kopierte den"
 
-msgid "86Box Monitor #"
-msgstr "86Box-skjerm #"
+msgid "86Box Monitor #%1"
+msgstr "86Box-skjerm #%1"
 
 msgid "No MCA devices."
 msgstr "Ingen MCA-enheter."
@@ -1781,6 +1817,9 @@ msgstr "Adapter:"
 
 msgid "VDE Socket:"
 msgstr "VDE-kontakt:"
+
+msgid "TAP Bridge Device:"
+msgstr ""
 
 msgid "86Box Unit Tester"
 msgstr "86Box-enhetstester"
@@ -2157,12 +2196,6 @@ msgstr "SID-filterstyrke"
 msgid "Surround module"
 msgstr "Surround-modul"
 
-msgid "CODEC"
-msgstr "Kodek"
-
-msgid "Raise CODEC interrupt on CODEC setup (needed by some drivers)"
-msgstr "Generer kodek-avbrudd ved kodek-oppsett (nødvendig for noen drivere)"
-
 msgid "SB Address"
 msgstr "SB-adresse"
 
@@ -2177,6 +2210,18 @@ msgstr "WSS-IRQ"
 
 msgid "WSS DMA"
 msgstr "WSS-DMA"
+
+msgid "RTC IRQ"
+msgstr ""
+
+msgid "RTC Port Address"
+msgstr ""
+
+msgid "Onboard RTC"
+msgstr ""
+
+msgid "Not installed"
+msgstr ""
 
 msgid "Enable OPL"
 msgstr "Aktiver OPL"
@@ -2447,9 +2492,6 @@ msgstr "24 MB"
 
 msgid "SigmaTel STAC9721T (stereo)"
 msgstr "SigmaTel STAC9721T (stereo)"
-
-msgid "Classic"
-msgstr "Klassisk"
 
 msgid "256 KB"
 msgstr "256 KB"
@@ -2739,9 +2781,6 @@ msgstr "GLSL-feil"
 msgid "Could not load shader: %1"
 msgstr "Kunne ikke laste shader: %1"
 
-msgid "OpenGL version 3.0 or greater is required. Current GLSL version is %1.%2"
-msgstr "OpenGL versjon 3.0 eller høyere kreves. Nåværende GLSL-versjon er %1.%2"
-
 msgid "Could not load texture: %1"
 msgstr "Kunne ikke laste tekstur: %1"
 
@@ -2804,6 +2843,9 @@ msgstr "Send Control+Alt+Escape"
 
 msgid "Toggle fullscreen"
 msgstr "Veksle fullskjerm"
+
+msgid "Toggle UI in fullscreen"
+msgstr ""
 
 msgid "Screenshot"
 msgstr "Skjermbilde"
@@ -2993,3 +3035,6 @@ msgstr "Lys"
 
 msgid "Dark"
 msgstr "Mørk"
+
+msgid "Search:"
+msgstr "Søk:"

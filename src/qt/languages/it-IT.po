@@ -1,8 +1,14 @@
 msgid ""
 msgstr ""
+"PO-Revision-Date: 2025-11-29 00:34+0000\n"
+"Last-Translator: OBattler <oubattler@gmail.com>\n"
+"Language-Team: Italian <https://weblate.86box.net/projects/86box/86box/it/>\n"
+"Language: it-IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
 "X-Language: it_IT\n"
 "X-Source-Language: en_US\n"
 
@@ -273,36 +279,6 @@ msgstr "Ricarica l'immagine precedente"
 msgid "&Folder..."
 msgstr "&Cartella..."
 
-msgid "Target &framerate"
-msgstr "Obiettivo &fotogrammi"
-
-msgid "&Sync with video"
-msgstr "&Sincronizza col video"
-
-msgid "&25 fps"
-msgstr "&25 FPS"
-
-msgid "&30 fps"
-msgstr "&30 FPS"
-
-msgid "&50 fps"
-msgstr "&50 FPS"
-
-msgid "&60 fps"
-msgstr "&60 FPS"
-
-msgid "&75 fps"
-msgstr "&75 FPS"
-
-msgid "&VSync"
-msgstr "Sincronizzazione &verticale"
-
-msgid "&Select shader..."
-msgstr "&Seleziona shader..."
-
-msgid "&Remove shader"
-msgstr "&Rimuovi shader"
-
 msgid "Preferences"
 msgstr "Preferenze"
 
@@ -520,7 +496,7 @@ msgid "LPT4 Device:"
 msgstr "Dispositivo LPT4:"
 
 msgid "Internal LPT ECP DMA:"
-msgstr "DMA LPT ECP interna"
+msgstr "DMA LPT ECP interna:"
 
 msgid "Serial port 1"
 msgstr "Porta seriale 1"
@@ -602,9 +578,6 @@ msgstr "Canale:"
 
 msgid "ID:"
 msgstr "ID:"
-
-msgid "&Specify..."
-msgstr "&Specifica..."
 
 msgid "Sectors:"
 msgstr "Settori:"
@@ -689,9 +662,6 @@ msgstr "Dispositivo ISABugger"
 
 msgid "POST card"
 msgstr "Scheda di diagnostica"
-
-msgid "86Box"
-msgstr "86Box"
 
 msgid "Error"
 msgstr "Errore"
@@ -852,8 +822,17 @@ msgstr "Nessun dispositivo PCap trovato"
 msgid "Invalid PCap device"
 msgstr "Dispositivo PCap non valido"
 
+msgid "Generic paddle controller(s)"
+msgstr "Controller generico/i a paletta"
+
+msgid "2-axis, 1-button joystick(s)"
+msgstr "Joystick a 2 assi, 1 pulsanti"
+
 msgid "2-axis, 2-button joystick(s)"
 msgstr "Joystick a 2 assi, 2 pulsanti"
+
+msgid "2-axis, 3-button joystick"
+msgstr "Joystick a 2 assi, 3 pulsanti"
 
 msgid "2-axis, 4-button joystick"
 msgstr "Joystick a 2 assi, 4 pulsanti"
@@ -867,17 +846,98 @@ msgstr "Joystick a 2 assi, 8 pulsanti"
 msgid "3-axis, 2-button joystick"
 msgstr "Joystick a 3 assi, 2 pulsanti"
 
+msgid "3-axis, 3-button joystick"
+msgstr "Joystick a 3 assi, 4 pulsanti"
+
 msgid "3-axis, 4-button joystick"
 msgstr "Joystick a 3 assi, 4 pulsanti"
 
+msgid "4-axis, 2-button joystick"
+msgstr "Joystick a 4 assi, 2 pulsanti"
+
+msgid "4-axis, 3-button joystick"
+msgstr "Joystick a 4 assi, 3 pulsanti"
+
 msgid "4-axis, 4-button joystick"
 msgstr "Joystick a 4 assi, 4 pulsanti"
+
+msgid "2-button gamepad(s)"
+msgstr "Gamepad a 2 pulsanti"
+
+msgid "3-button gamepad"
+msgstr "Gamepad a 3 pulsanti"
+
+msgid "4-button gamepad"
+msgstr "Gamepad a 4 pulsanti"
+
+msgid "6-button gamepad"
+msgstr "Gamepad a 6 pulsanti"
+
+msgid "Gravis PC GamePad"
+msgstr "Gravis PC GamePad"
+
+msgid "2-button flight yoke"
+msgstr "Barra di comando a 2 pulsanti"
+
+msgid "3-button flight yoke"
+msgstr "Barra di comando a 3 pulsanti"
+
+msgid "4-button flight yoke"
+msgstr "Barra di comando a 4 pulsanti"
+
+msgid "2-button flight yoke with throttle"
+msgstr "Barra di comando a 2 pulsanti con acceleratore"
+
+msgid "3-button flight yoke with throttle"
+msgstr "Barra di comando a 4 pulsanti con acceleratore"
+
+msgid "4-button flight yoke with throttle"
+msgstr "Barra di comando a 4 pulsanti con acceleratore"
+
+msgid "Steering wheel (3-axis, 2-button)"
+msgstr "Volante (3 assi, 2 pulsanti)"
+
+msgid "Steering wheel (3-axis, 3-button)"
+msgstr "Volante (3 assi, 3 pulsanti)"
+
+msgid "Steering wheel (3-axis, 4-button)"
+msgstr "Volante (3 assi, 4 pulsanti)"
+
+msgid "CH Flightstick"
+msgstr "CH Flightstick"
+
+msgid "CH Flightstick + CH Pedals"
+msgstr "CH Flightstick + CH Pedals"
+
+msgid "CH Flightstick + CH Pedals Pro"
+msgstr "CH Flightstick + CH Pedals Pro"
 
 msgid "CH Flightstick Pro"
 msgstr "CH Flightstick Pro"
 
 msgid "CH Flightstick Pro + CH Pedals"
 msgstr "CH Flightstick Pro + Pedali CH"
+
+msgid "CH Flightstick Pro + CH Pedals Pro"
+msgstr "CH Flightstick Pro + CH Pedali Pro"
+
+msgid "CH Virtual Pilot"
+msgstr "CH Virtual Pilot"
+
+msgid "CH Virtual Pilot + CH Pedals"
+msgstr "CH Virtual Pilot + CH Pedali"
+
+msgid "CH Virtual Pilot + CH Pedals Pro"
+msgstr "CH Virtual Pilot + CH Pedali Pro"
+
+msgid "CH Virtual Pilot Pro"
+msgstr "CH Virtual Pilot Pro"
+
+msgid "CH Virtual Pilot Pro + CH Pedals"
+msgstr "CH Virtual Pilot Pro + CH Pedali"
+
+msgid "CH Virtual Pilot Pro + CH Pedals Pro"
+msgstr "CH Virtual Pilot Pro + CH Pedali Pro"
 
 msgid "Microsoft SideWinder Pad"
 msgstr "Microsoft SideWinder"
@@ -888,26 +948,11 @@ msgstr "Sistema di controllo Thrustmaster Flight"
 msgid "Thrustmaster FCS + Rudder Control System"
 msgstr "Thrustmaster FCS + Sistema di controllo timone"
 
-msgid "2-button gamepad(s)"
-msgstr "Gamepad a 2 pulsanti"
+msgid "Thrustmaster Formula T1/T2 with adapter"
+msgstr "Thrustmaster Formula T1/T2 con adattatore"
 
-msgid "2-button flight yoke"
-msgstr "Barra di comando a 2 pulsanti"
-
-msgid "4-button gamepad"
-msgstr "Gamepad a 4 pulsanti"
-
-msgid "4-button flight yoke"
-msgstr "Barra di comando a 4 pulsanti"
-
-msgid "2-button flight yoke with throttle"
-msgstr "Barra di comando a 2 pulsanti con acceleratore"
-
-msgid "4-button flight yoke with throttle"
-msgstr "Barra di comando a 4 pulsanti con acceleratore"
-
-msgid "Win95 Steering Wheel (3-axis, 4-button)"
-msgstr "Volante Win95 (3 assi, 4 pulsanti)"
+msgid "Thrustmaster Formula T1/T2 without adapter"
+msgstr "Thrustmaster Formula T1/T2 senza adattatore"
 
 msgid "None"
 msgstr "Nessuno"
@@ -978,11 +1023,8 @@ msgstr "Questo riavvierà la macchina emulata."
 msgid "Save"
 msgstr "Salva"
 
-msgid "About 86Box"
-msgstr "Informazioni su 86Box"
-
-msgid "86Box v"
-msgstr "86Box v"
+msgid "About %1"
+msgstr "Informazioni su %1"
 
 msgid "An emulator of old computers\n\nAuthors: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne, and others.\n\nWith previous core contributions from Sarah Walker, leilei, JohnElliott, greatpsycho, and others.\n\nReleased under the GNU General Public License version 2 or later. See LICENSE for more information."
 msgstr "Un emulatore di vecchi computer\n\nAutori: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne e altri.\n\nCon i precedenti contributi fondamentali di Sarah Walker, leilei, JohnElliott, greatpsycho e altri.\n\nRilasciato sotto la Licenza Pubblica Generale GNU versione 2 o successiva. Per ulteriori informazioni, consultare il file LICENSE."
@@ -1332,8 +1374,8 @@ msgstr "Sistema"
 msgid "Storage"
 msgstr "Archiviazione"
 
-msgid "Disk %1: "
-msgstr "Disco %1: "
+msgid "Disk %1:"
+msgstr "Disco %1:"
 
 msgid "No disks"
 msgstr "Nessun disco"
@@ -1746,8 +1788,8 @@ msgstr "L'ho spostata"
 msgid "I Copied It"
 msgstr "L'ho copiata"
 
-msgid "86Box Monitor #"
-msgstr "Monitor 86Box #"
+msgid "86Box Monitor #%1"
+msgstr "Monitor 86Box #%1"
 
 msgid "No MCA devices."
 msgstr "Nessun dispositivo MCA."
@@ -1781,6 +1823,9 @@ msgstr "Adattatore:"
 
 msgid "VDE Socket:"
 msgstr "Presa VDE:"
+
+msgid "TAP Bridge Device:"
+msgstr "Dispositivo ponte TAP:"
 
 msgid "86Box Unit Tester"
 msgstr "Tester di unità 86Box"
@@ -2157,12 +2202,6 @@ msgstr "Intensità filtro SID"
 msgid "Surround module"
 msgstr "Modulo surround"
 
-msgid "CODEC"
-msgstr "CODEC"
-
-msgid "Raise CODEC interrupt on CODEC setup (needed by some drivers)"
-msgstr "Incrementa l'interrupt CODEC nella configurazione CODEC (necessario per alcuni driver)"
-
 msgid "SB Address"
 msgstr "Indirizzo SB"
 
@@ -2177,6 +2216,18 @@ msgstr "IRQ WSS"
 
 msgid "WSS DMA"
 msgstr "DMA WSS"
+
+msgid "RTC IRQ"
+msgstr "IRQ dell'ora in tempo reale"
+
+msgid "RTC Port Address"
+msgstr "Indirizzo porta dell'ora in tempo reale"
+
+msgid "Onboard RTC"
+msgstr "Ora in tempo reale integrata"
+
+msgid "Not installed"
+msgstr "Non installato"
 
 msgid "Enable OPL"
 msgstr "Abilita OPL"
@@ -2447,9 +2498,6 @@ msgstr "24 MB"
 
 msgid "SigmaTel STAC9721T (stereo)"
 msgstr "SigmaTel STAC9721T (stereo)"
-
-msgid "Classic"
-msgstr "Classico"
 
 msgid "256 KB"
 msgstr "256 KB"
@@ -2739,9 +2787,6 @@ msgstr "Errore GLSL"
 msgid "Could not load shader: %1"
 msgstr "Impossibile caricare lo shader: %1"
 
-msgid "OpenGL version 3.0 or greater is required. Current GLSL version is %1.%2"
-msgstr "È richiesta la versione 3.0 di OpenGL o successiva. La versione GLSL corrente è %1.%2"
-
 msgid "Could not load texture: %1"
 msgstr "Impossibile caricare la texture: %1"
 
@@ -2804,6 +2849,9 @@ msgstr "Invia Ctrl+Alt+Esc"
 
 msgid "Toggle fullscreen"
 msgstr "Attiva/disattiva schermo intero"
+
+msgid "Toggle UI in fullscreen"
+msgstr "Attivare/disattivare interfaccia utente in modalità a schermo intero"
 
 msgid "Screenshot"
 msgstr "Istantanea dello schermo"
@@ -2993,3 +3041,6 @@ msgstr "Chiara"
 
 msgid "Dark"
 msgstr "Scura"
+
+msgid "Search:"
+msgstr "Cerca:"

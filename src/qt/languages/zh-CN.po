@@ -67,7 +67,7 @@ msgid "&VNC"
 msgstr "VNC(&V)"
 
 msgid "Specify &dimensions..."
-msgstr "指定窗口大小...(&D)"
+msgstr "指定窗口大小(&D)..."
 
 msgid "Force &4:3 display ratio"
 msgstr "强制 4:3 显示比例(&4)"
@@ -109,10 +109,10 @@ msgid "Fi&lter method"
 msgstr "过滤方式(&L)"
 
 msgid "&Nearest"
-msgstr "邻近(&N)"
+msgstr "近邻取样(&N)"
 
 msgid "&Linear"
-msgstr "线性(&L)"
+msgstr "线性过滤(&L)"
 
 msgid "Hi&DPI scaling"
 msgstr "HiDPI 缩放(&D)"
@@ -196,7 +196,7 @@ msgid "&Settings..."
 msgstr "设置(&S)..."
 
 msgid "Settings..."
-msgstr "设置"
+msgstr "设置..."
 
 msgid "&Update status bar icons"
 msgstr "更新状态栏图标(&U)"
@@ -272,36 +272,6 @@ msgstr "载入上一个映像"
 
 msgid "&Folder..."
 msgstr "文件夹(&F)..."
-
-msgid "Target &framerate"
-msgstr "目标帧率(&F)"
-
-msgid "&Sync with video"
-msgstr "与视频同步(&S)"
-
-msgid "&25 fps"
-msgstr "25 fps(&2)"
-
-msgid "&30 fps"
-msgstr "30 fps(&3)"
-
-msgid "&50 fps"
-msgstr "50 fps(&5)"
-
-msgid "&60 fps"
-msgstr "60 fps(&6)"
-
-msgid "&75 fps"
-msgstr "75 fps(&7)"
-
-msgid "&VSync"
-msgstr "垂直同步(&V)"
-
-msgid "&Select shader..."
-msgstr "选择着色器(&S)..."
-
-msgid "&Remove shader"
-msgstr "移除着色器(&R)"
 
 msgid "Preferences"
 msgstr "首选项"
@@ -394,7 +364,7 @@ msgid "Disabled"
 msgstr "禁用"
 
 msgid "Enabled (local time)"
-msgstr "启用 (本地时间)"
+msgstr "启用 (本地时区)"
 
 msgid "Enabled (UTC)"
 msgstr "启用 (UTC)"
@@ -403,7 +373,7 @@ msgid "Dynamic Recompiler"
 msgstr "动态重编译器"
 
 msgid "CPU frame size"
-msgstr "CPU 执行帧长度"
+msgstr "CPU 执行帧大小"
 
 msgid "Larger frames (less smooth)"
 msgstr "大执行帧 (操作欠平滑)"
@@ -484,10 +454,10 @@ msgid "Standalone MPU-401"
 msgstr "独立 MPU-401"
 
 msgid "Use FLOAT32 sound"
-msgstr "使用单精度浮点 (FLOAT32) 音频"
+msgstr "使用单精度浮点（FLOAT32）音频"
 
 msgid "FM synth driver"
-msgstr "FM synth driver"
+msgstr "FM合成器驱动"
 
 msgid "Nuked (more accurate)"
 msgstr "Nuked (更准确)"
@@ -550,7 +520,7 @@ msgid "FD Controller:"
 msgstr "软盘控制器:"
 
 msgid "CD-ROM Controller:"
-msgstr "CD-ROM 控制器"
+msgstr "CD-ROM 控制器:"
 
 msgid "Tertiary IDE Controller"
 msgstr "第三 IDE 控制器"
@@ -602,9 +572,6 @@ msgstr "通道:"
 
 msgid "ID:"
 msgstr "ID:"
-
-msgid "&Specify..."
-msgstr "指定(&S)..."
 
 msgid "Sectors:"
 msgstr "扇区(S):"
@@ -689,9 +656,6 @@ msgstr "ISABugger 设备"
 
 msgid "POST card"
 msgstr "自检 (POST) 卡"
-
-msgid "86Box"
-msgstr "86Box"
 
 msgid "Error"
 msgstr "错误"
@@ -778,10 +742,10 @@ msgid "Ports"
 msgstr "端口"
 
 msgid "Serial ports:"
-msgstr "串行端口:"
+msgstr "串口:"
 
 msgid "Parallel ports:"
-msgstr "并行端口:"
+msgstr "并口:"
 
 msgid "Storage controllers"
 msgstr "存储控制器"
@@ -852,8 +816,17 @@ msgstr "未找到 PCap 设备"
 msgid "Invalid PCap device"
 msgstr "无效 PCap 设备"
 
+msgid "Generic paddle controller(s)"
+msgstr "通用桨式控制器"
+
+msgid "2-axis, 1-button joystick(s)"
+msgstr "2 轴, 1 键操纵杆"
+
 msgid "2-axis, 2-button joystick(s)"
 msgstr "2 轴, 2 键操纵杆"
+
+msgid "2-axis, 3-button joystick"
+msgstr "2 轴, 3 键操纵杆"
 
 msgid "2-axis, 4-button joystick"
 msgstr "2 轴, 4 键操纵杆"
@@ -867,17 +840,98 @@ msgstr "2 轴, 8 键操纵杆"
 msgid "3-axis, 2-button joystick"
 msgstr "3 轴, 2 键操纵杆"
 
+msgid "3-axis, 3-button joystick"
+msgstr "3 轴, 3 键操纵杆"
+
 msgid "3-axis, 4-button joystick"
 msgstr "3 轴, 4 键操纵杆"
 
+msgid "4-axis, 2-button joystick"
+msgstr "4 轴, 2 键操纵杆"
+
+msgid "4-axis, 3-button joystick"
+msgstr "4 轴, 3 键操纵杆"
+
 msgid "4-axis, 4-button joystick"
 msgstr "4 轴, 4 键操纵杆"
+
+msgid "2-button gamepad(s)"
+msgstr "2 按钮游戏手柄"
+
+msgid "3-button gamepad"
+msgstr "3 按钮游戏手柄"
+
+msgid "4-button gamepad"
+msgstr "4 按钮游戏手柄"
+
+msgid "6-button gamepad"
+msgstr "6 按钮游戏手柄"
+
+msgid "Gravis PC GamePad"
+msgstr "Gravis PC GamePad"
+
+msgid "2-button flight yoke"
+msgstr "2 按钮飞行摇杆"
+
+msgid "3-button flight yoke"
+msgstr "3 按钮飞行摇杆"
+
+msgid "4-button flight yoke"
+msgstr "4 按钮飞行摇杆"
+
+msgid "2-button flight yoke with throttle"
+msgstr "2 按钮带油门飞行摇杆"
+
+msgid "3-button flight yoke with throttle"
+msgstr "3 按钮带油门飞行摇杆"
+
+msgid "4-button flight yoke with throttle"
+msgstr "4 按钮带油门飞行摇杆"
+
+msgid "Steering wheel (3-axis, 2-button)"
+msgstr "方向盘 (3 轴, 2 键)"
+
+msgid "Steering wheel (3-axis, 3-button)"
+msgstr "方向盘 (3 轴, 3 键)"
+
+msgid "Steering wheel (3-axis, 4-button)"
+msgstr "方向盘 (3 轴, 4 键)"
+
+msgid "CH Flightstick"
+msgstr "CH Flightstick"
+
+msgid "CH Flightstick + CH Pedals"
+msgstr "CH Flightstick + CH Pedals"
+
+msgid "CH Flightstick + CH Pedals Pro"
+msgstr "CH Flightstick + CH Pedals Pro"
 
 msgid "CH Flightstick Pro"
 msgstr "CH Flightstick Pro"
 
 msgid "CH Flightstick Pro + CH Pedals"
 msgstr "CH Flightstick Pro + CH Pedals"
+
+msgid "CH Flightstick Pro + CH Pedals Pro"
+msgstr "CH Flightstick Pro + CH Pedals Pro"
+
+msgid "CH Virtual Pilot"
+msgstr "CH Virtual Pilot"
+
+msgid "CH Virtual Pilot + CH Pedals"
+msgstr "CH Virtual Pilot + CH Pedals"
+
+msgid "CH Virtual Pilot + CH Pedals Pro"
+msgstr "CH Virtual Pilot + CH Pedals Pro"
+
+msgid "CH Virtual Pilot Pro"
+msgstr "CH Virtual Pilot Pro"
+
+msgid "CH Virtual Pilot Pro + CH Pedals"
+msgstr "CH Virtual Pilot Pro + CH Pedals"
+
+msgid "CH Virtual Pilot Pro + CH Pedals Pro"
+msgstr "CH Virtual Pilot Pro + CH Pedals Pro"
 
 msgid "Microsoft SideWinder Pad"
 msgstr "Microsoft SideWinder Pad"
@@ -888,26 +942,11 @@ msgstr "Thrustmaster Flight Control System"
 msgid "Thrustmaster FCS + Rudder Control System"
 msgstr "Thrustmaster FCS + Rudder Control System"
 
-msgid "2-button gamepad(s)"
-msgstr "2 按钮游戏手柄"
+msgid "Thrustmaster Formula T1/T2 with adapter"
+msgstr "带适配器 Thrustmaster Formula T1/T2"
 
-msgid "2-button flight yoke"
-msgstr "2 按钮飞行摇杆"
-
-msgid "4-button gamepad"
-msgstr "4 按钮游戏手柄"
-
-msgid "4-button flight yoke"
-msgstr "4 按钮飞行摇杆"
-
-msgid "2-button flight yoke with throttle"
-msgstr "2 按钮带油门飞行摇杆"
-
-msgid "4-button flight yoke with throttle"
-msgstr "4 按钮带油门飞行摇杆"
-
-msgid "Win95 Steering Wheel (3-axis, 4-button)"
-msgstr "Win95 方向盘 (3 轴, 4 键)"
+msgid "Thrustmaster Formula T1/T2 without adapter"
+msgstr "不带适配器 Thrustmaster Formula T1/T2"
 
 msgid "None"
 msgstr "无"
@@ -978,11 +1017,8 @@ msgstr "此操作将硬重置模拟器。"
 msgid "Save"
 msgstr "保存"
 
-msgid "About 86Box"
-msgstr "关于 86Box"
-
-msgid "86Box v"
-msgstr "86Box v"
+msgid "About %1"
+msgstr "关于 %1"
 
 msgid "An emulator of old computers\n\nAuthors: Miran Grča (OBattler), RichardG867, Jasmine Iwanek, TC1995, coldbrewed, Teemu Korhonen (Manaatti), Joakim L. Gilje, Adrien Moulin (elyosh), Daniel Balsom (gloriouscow), Cacodemon345, Fred N. van Kempen (waltje), Tiseno100, reenigne, and others.\n\nWith previous core contributions from Sarah Walker, leilei, JohnElliott, greatpsycho, and others.\n\nReleased under the GNU General Public License version 2 or later. See LICENSE for more information."
 msgstr "一个旧式计算机模拟器\n\n作者: Miran Grča (OBattler)、RichardG867、Jasmine Iwanek、TC1995、coldbrewed、Teemu Korhonen (Manaatti)、Joakim L. Gilje、Adrien Moulin (elyosh)、Daniel Balsom (gloriouscow)、Cacodemon345、Fred N. van Kempen (waltje)、Tiseno100、reenigne 等人。\n\n感谢 Sarah Walker、leilei、JohnElliott、greatpsycho 和其他人的核心贡献。\n\n本软件依据 GNU 通用公共许可证第二版或更新版本发布。详情见 LICENSE 文件。"
@@ -1114,7 +1150,7 @@ msgid "VMs: %1"
 msgstr "虚拟机: %1"
 
 msgid "System Directory:"
-msgstr "系统目录"
+msgstr "系统目录:"
 
 msgid "Choose directory"
 msgstr "选择目录"
@@ -1135,10 +1171,10 @@ msgid "Use regular expressions in search box"
 msgstr "在搜索框中使用正则表达式"
 
 msgid "%1 machine(s) are currently active. Are you sure you want to exit the VM manager anyway?"
-msgstr "%1 计算机当前处于活动状态。您确定要退出虚拟机管理器吗？"
+msgstr "%1 个计算机当前处于活动状态。您确定要退出虚拟机管理器吗？"
 
 msgid "Add new system wizard"
-msgstr "新增系统向导"
+msgstr "添加新系统向导"
 
 msgid "Introduction"
 msgstr "介绍"
@@ -1159,7 +1195,7 @@ msgid "Use existing configuration"
 msgstr "使用现有配置"
 
 msgid "Type some notes here"
-msgstr "在此处键入一些备注"
+msgstr "在此处键入备注"
 
 msgid "Paste the contents of the existing configuration file into the box below."
 msgstr "将现有配置文件内容粘贴到下面的框中。"
@@ -1204,7 +1240,7 @@ msgid "Please enter a system name"
 msgstr "请输入系统名称"
 
 msgid "Display name (optional):"
-msgstr "显示名称 (可选)"
+msgstr "显示名称 (可选):"
 
 msgid "Display name:"
 msgstr "显示名称:"
@@ -1243,7 +1279,7 @@ msgid "Directory %1 already exists"
 msgstr "目录 %1 已存在"
 
 msgid "You cannot use the following characters in the name: %1"
-msgstr " %1: 名称中不能使用以下字符: %1"
+msgstr "名称中不能使用以下字符: %1"
 
 msgid "Clone"
 msgstr "克隆"
@@ -1332,8 +1368,8 @@ msgstr "系统"
 msgid "Storage"
 msgstr "存储"
 
-msgid "Disk %1: "
-msgstr "磁盘 %1"
+msgid "Disk %1:"
+msgstr "磁盘 %1:"
 
 msgid "No disks"
 msgstr "无磁盘"
@@ -1651,7 +1687,7 @@ msgid "Show non-&primary monitors"
 msgstr "显示非主要显示器(&P)"
 
 msgid "Open screenshots &folder..."
-msgstr "打开屏幕截图文件夹...(&F)"
+msgstr "打开屏幕截图文件夹(&F)..."
 
 msgid "Appl&y fullscreen stretch mode when maximized"
 msgstr "最大化时应用全屏拉伸模式(&Y)"
@@ -1746,8 +1782,8 @@ msgstr "我已移动这台机器"
 msgid "I Copied It"
 msgstr "我已复制这台机器"
 
-msgid "86Box Monitor #"
-msgstr "86Box 显示器 #"
+msgid "86Box Monitor #%1"
+msgstr "86Box 显示器 #%1"
 
 msgid "No MCA devices."
 msgstr "无 MCA 设备。"
@@ -1782,26 +1818,29 @@ msgstr "适配器:"
 msgid "VDE Socket:"
 msgstr "VDE 套接字:"
 
+msgid "TAP Bridge Device:"
+msgstr "TAP 桥接设备:"
+
 msgid "86Box Unit Tester"
-msgstr "86Box 装置测试仪"
+msgstr "86Box 单元测试工具"
 
 msgid "Novell NetWare 2.x Key Card"
 msgstr "Novell NetWare 2.x 密钥卡"
 
 msgid "Serial port passthrough 1"
-msgstr "串行端口直通 1"
+msgstr "串口直通 1"
 
 msgid "Serial port passthrough 2"
-msgstr "串行端口直通 2"
+msgstr "串口直通 2"
 
 msgid "Serial port passthrough 3"
-msgstr "串行端口直通 3"
+msgstr "串口直通 3"
 
 msgid "Serial port passthrough 4"
-msgstr "串行端口直通 4"
+msgstr "串口直通 4"
 
 msgid "Renderer &options..."
-msgstr "渲染器选项...(&O)"
+msgstr "渲染器选项(&O)..."
 
 msgid "PC/XT Keyboard"
 msgstr "PC/XT 键盘"
@@ -1849,7 +1888,7 @@ msgid "PS/2 QuickPort Mouse"
 msgstr "PS/2 QuickPort 鼠标"
 
 msgid "3M MicroTouch (Serial)"
-msgstr "3M MicroTouch (串行)"
+msgstr "3M MicroTouch (串口)"
 
 msgid "Default Baud rate"
 msgstr "默认波特率"
@@ -1936,7 +1975,7 @@ msgid "Serial port IRQ"
 msgstr "串口的 IRQ"
 
 msgid "Parallel port IRQ"
-msgstr "并行端口的 IRQ"
+msgstr "并口的 IRQ"
 
 msgid "BIOS Revision"
 msgstr "BIOS 修订版"
@@ -2074,7 +2113,7 @@ msgid "Buttons"
 msgstr "按钮"
 
 msgid "Serial Port"
-msgstr "串行端口"
+msgstr "串口"
 
 msgid "RTS toggle"
 msgstr "RTS 切换"
@@ -2095,7 +2134,7 @@ msgid "MAC Address"
 msgstr "MAC 地址"
 
 msgid "MAC Address OUI"
-msgstr "MAC 地址的 OUI"
+msgstr "MAC 地址组织唯一标识符"
 
 msgid "Enable BIOS"
 msgstr "启用 BIOS"
@@ -2157,12 +2196,6 @@ msgstr "SID 滤镜强度"
 msgid "Surround module"
 msgstr "环绕声模块"
 
-msgid "CODEC"
-msgstr "CODEC"
-
-msgid "Raise CODEC interrupt on CODEC setup (needed by some drivers)"
-msgstr "在 CODEC 设置时引发 CODEC 中断（某些驱动程序需要）。"
-
 msgid "SB Address"
 msgstr "Sound Blaster 地址"
 
@@ -2177,6 +2210,18 @@ msgstr "WSS IRQ"
 
 msgid "WSS DMA"
 msgstr "WSS DMA"
+
+msgid "RTC IRQ"
+msgstr "实时时钟的IRQ"
+
+msgid "RTC Port Address"
+msgstr "实时时钟的端口地址"
+
+msgid "Onboard RTC"
+msgstr "板载实时时钟"
+
+msgid "Not installed"
+msgstr "未安装"
 
 msgid "Enable OPL"
 msgstr "启用 OPL"
@@ -2305,7 +2350,7 @@ msgid "Transfer Speed"
 msgstr "传输速度"
 
 msgid "EMS mode"
-msgstr "EMS (扩展内存)模式"
+msgstr "EMS（扩展内存）模式"
 
 msgid "EMS Address"
 msgstr "EMS 地址"
@@ -2446,10 +2491,7 @@ msgid "24 MB"
 msgstr "24 MB"
 
 msgid "SigmaTel STAC9721T (stereo)"
-msgstr "SigmaTel STAC9721T (立体声)"
-
-msgid "Classic"
-msgstr "经典"
+msgstr "SigmaTel STAC9721T（立体声）"
 
 msgid "256 KB"
 msgstr "256 KB"
@@ -2620,13 +2662,13 @@ msgid "Protection Dongle for Savage Quest"
 msgstr "Savage Quest 保护加密狗"
 
 msgid "Serial Passthrough Device"
-msgstr "串行端口直通设备"
+msgstr "串口直通设备"
 
 msgid "Passthrough Mode"
 msgstr "直通模式"
 
 msgid "Host Serial Device"
-msgstr "主机串行设备"
+msgstr "主机串口设备"
 
 msgid "Name of pipe"
 msgstr "管道名称"
@@ -2644,10 +2686,10 @@ msgid "Named Pipe (Server)"
 msgstr "命名管道（服务器）"
 
 msgid "Named Pipe (Client)"
-msgstr "命名管道 (客户端) "
+msgstr "命名管道 (客户端)"
 
 msgid "Host Serial Passthrough"
-msgstr "主机串行端口直通"
+msgstr "主机串口直通"
 
 msgid "E&ject %1"
 msgstr "弹出 %1(&J)"
@@ -2739,9 +2781,6 @@ msgstr "GLSL 错误"
 msgid "Could not load shader: %1"
 msgstr "无法加载着色器：%1"
 
-msgid "OpenGL version 3.0 or greater is required. Current GLSL version is %1.%2"
-msgstr "OpenGL 版本需要达到 3.0 或更高。当前 GLSL 版本为 %1.%2"
-
 msgid "Could not load texture: %1"
 msgstr "无法加载材质：%1"
 
@@ -2770,7 +2809,7 @@ msgid "Could not load file %1"
 msgstr "无法加载文件 %1"
 
 msgid "Key Bindings:"
-msgstr "按键绑定"
+msgstr "按键绑定:"
 
 msgid "Action"
 msgstr "动作"
@@ -2788,7 +2827,7 @@ msgid "Bind Key"
 msgstr "绑定按键"
 
 msgid "Enter key combo:"
-msgstr "输入按键组合"
+msgstr "输入按键组合:"
 
 msgid "Bind conflict"
 msgstr "绑定冲突"
@@ -2804,6 +2843,9 @@ msgstr "发送 Ctrl+Alt+Esc"
 
 msgid "Toggle fullscreen"
 msgstr "切换全屏"
+
+msgid "Toggle UI in fullscreen"
+msgstr "在全屏模式下激活菜单栏"
 
 msgid "Screenshot"
 msgstr "截图"
@@ -2902,13 +2944,13 @@ msgid "build"
 msgstr "构建"
 
 msgid "You are currently running version <b>%1</b>."
-msgstr "您当前正在运行版本 <b>%1</b> 。"
+msgstr "您当前正在运行版本 <b>%1</b>。"
 
 msgid "<b>Version %1</b> is now available."
 msgstr "<b>版本 %1</b>现已可用。"
 
 msgid "You are currently running build <b>%1</b>."
-msgstr "您当前正在运行构建 <b>%1</b> 。"
+msgstr "您当前正在运行构建 <b>%1</b>。"
 
 msgid "<b>Build %1</b> is now available."
 msgstr "<b>构建 %1</b>现已可用。"
@@ -2929,7 +2971,7 @@ msgid "86Box Update"
 msgstr "86Box 更新"
 
 msgid "Release notes:"
-msgstr "发行版说明"
+msgstr "发行版说明:"
 
 msgid "%1 Hz"
 msgstr "%1 Hz"
@@ -2962,7 +3004,7 @@ msgid "Sharpness"
 msgstr "锐度"
 
 msgid "&CGA composite settings..."
-msgstr "CGA 复合模式设置...(&C)"
+msgstr "CGA 复合模式设置(&C)..."
 
 msgid "CGA composite settings"
 msgstr "CGA 复合模式设置"
@@ -2993,3 +3035,6 @@ msgstr "亮色"
 
 msgid "Dark"
 msgstr "暗色"
+
+msgid "Search:"
+msgstr "搜索:"

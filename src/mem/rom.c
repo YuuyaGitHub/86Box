@@ -85,6 +85,36 @@ rom_add_path(const char *path)
     path_slash(rom_path->path);
 }
 
+void
+asset_add_path(const char *path)
+{
+    char cwd[1024] = { 0 };
+
+    rom_path_t *asset_path = &asset_paths;
+
+    if (asset_paths.path[0] != '\0') {
+        // Iterate to the end of the list.
+        while (asset_path->next != NULL) {
+            asset_path = asset_path->next;
+        }
+
+        // Allocate the new entry.
+        asset_path = asset_path->next = calloc(1, sizeof(rom_path_t));
+    }
+
+    // Save the path, turning it into absolute if needed.
+    if (!path_abs((char *) path)) {
+        plat_getcwd(cwd, sizeof(cwd));
+        path_slash(cwd);
+        snprintf(asset_path->path, sizeof(asset_path->path), "%s%s", cwd, path);
+    } else {
+        snprintf(asset_path->path, sizeof(asset_path->path), "%s", path);
+    }
+
+    // Ensure the path ends with a separator.
+    path_slash(asset_path->path);
+}
+
 static int
 rom_check(const char *fn)
 {
@@ -129,6 +159,31 @@ rom_get_full_path(char *dest, const char *fn)
     }
 }
 
+void
+asset_get_full_path(char *dest, const char *fn)
+{
+    char temp[1024] = { 0 };
+
+    dest[0] = 0x00;
+
+    if (!strncmp(fn, "assets/", 7)) {
+        /* Relative path */
+        for (rom_path_t *asset_path = &asset_paths; asset_path != NULL; asset_path = asset_path->next) {
+            path_append_filename(temp, asset_path->path, fn + 7);
+
+            if (rom_check(temp)) {
+                strcpy(dest, temp);
+                return;
+            }
+        }
+
+        return;
+    } else {
+        /* Absolute path */
+        strcpy(dest, fn);
+    }
+}
+
 FILE *
 rom_fopen(const char *fn, char *mode)
 {
@@ -142,6 +197,31 @@ rom_fopen(const char *fn, char *mode)
         /* Relative path */
         for (rom_path_t *rom_path = &rom_paths; rom_path != NULL; rom_path = rom_path->next) {
             path_append_filename(temp, rom_path->path, fn + 5);
+
+            if ((fp = plat_fopen(temp, mode)) != NULL)
+                return fp;
+        }
+
+        return fp;
+    } else {
+        /* Absolute path */
+        return plat_fopen(fn, mode);
+    }
+}
+
+FILE *
+asset_fopen(const char *fn, char *mode)
+{
+    char        temp[1024];
+    FILE       *fp = NULL;
+
+    if ((fn == NULL) || (mode == NULL))
+        return NULL;
+
+    if (!strncmp(fn, "assets/", 7)) {
+        /* Relative path */
+        for (rom_path_t *asset_path = &asset_paths; asset_path != NULL; asset_path = asset_path->next) {
+            path_append_filename(temp, asset_path->path, fn + 7);
 
             if ((fp = plat_fopen(temp, mode)) != NULL)
                 return fp;
@@ -183,6 +263,34 @@ rom_getfile(const char *fn, char *s, int size)
 }
 
 int
+asset_getfile(const char *fn, char *s, int size)
+{
+    char        temp[1024];
+
+    if (!strncmp(fn, "assets/", 7)) {
+        /* Relative path */
+        for (rom_path_t *asset_path = &asset_paths; asset_path != NULL; asset_path = asset_path->next) {
+            path_append_filename(temp, asset_path->path, fn + 7);
+
+            if (plat_file_check(temp)) {
+                strncpy(s, temp, size);
+                return 1;
+            }
+        }
+
+        return 0;
+    } else {
+        /* Absolute path */
+        if (plat_file_check(fn)) {
+            strncpy(s, fn, size);
+            return 1;
+        }
+
+        return 0;
+    }
+}
+
+int
 rom_present(const char *fn)
 {
     char temp[1024];
@@ -194,6 +302,30 @@ rom_present(const char *fn)
         /* Relative path */
         for (rom_path_t *rom_path = &rom_paths; rom_path != NULL; rom_path = rom_path->next) {
             path_append_filename(temp, rom_path->path, fn + 5);
+
+            if (plat_file_check(temp))
+                return 1;
+        }
+
+        return 0;
+    } else {
+        /* Absolute path */
+        return plat_file_check(fn);
+    }
+}
+
+int
+asset_present(const char *fn)
+{
+    char temp[1024];
+
+    if (fn == NULL)
+        return 0;
+
+    if (!strncmp(fn, "assets/", 7)) {
+        /* Relative path */
+        for (rom_path_t *asset_path = &asset_paths; asset_path != NULL; asset_path = asset_path->next) {
+            path_append_filename(temp, asset_path->path, fn + 7);
 
             if (plat_file_check(temp))
                 return 1;
@@ -643,27 +775,27 @@ bios_load(const char *fn1, const char *fn2, uint32_t addr, int sz, int off, int 
 int
 bios_load_linear_combined(const char *fn1, const char *fn2, int sz, UNUSED(int off))
 {
-    return bios_load_linear(fn1, 0x000f0000, 131072, 128) && \
+    return bios_load_linear(fn1, 0x000f0000, 131072, 128) &&
         bios_load_aux_linear(fn2, 0x000e0000, sz - 65536, 128);
 }
 
 int
 bios_load_linear_combined2(const char *fn1, const char *fn2, const char *fn3, const char *fn4, const char *fn5, int sz, int off)
 {
-    return bios_load_linear(fn3, 0x000f0000, 262144, off) && \
-        bios_load_aux_linear(fn1, 0x000d0000, 65536, off) && \
-        bios_load_aux_linear(fn2, 0x000c0000, 65536, off) && \
-        bios_load_aux_linear(fn4, 0x000e0000, sz - 196608, off) && \
+    return bios_load_linear(fn3, 0x000f0000, 262144, off) &&
+        bios_load_aux_linear(fn1, 0x000d0000, 65536, off) &&
+        bios_load_aux_linear(fn2, 0x000c0000, 65536, off) &&
+        bios_load_aux_linear(fn4, 0x000e0000, sz - 196608, off) &&
         (!fn5 || bios_load_aux_linear(fn5, 0x000ec000, 16384, 0));
 }
 
 int
 bios_load_linear_combined2_ex(const char *fn1, const char *fn2, const char *fn3, const char *fn4, const char *fn5, int sz, int off)
 {
-    return bios_load_linear(fn3, 0x000e0000, 262144, off) && \
-        bios_load_aux_linear(fn1, 0x000c0000, 65536, off) && \
-        bios_load_aux_linear(fn2, 0x000d0000, 65536, off) && \
-        bios_load_aux_linear(fn4, 0x000f0000, sz - 196608, off) && \
+    return bios_load_linear(fn3, 0x000e0000, 262144, off) &&
+        bios_load_aux_linear(fn1, 0x000c0000, 65536, off) &&
+        bios_load_aux_linear(fn2, 0x000d0000, 65536, off) &&
+        bios_load_aux_linear(fn4, 0x000f0000, sz - 196608, off) &&
         (!fn5 || bios_load_aux_linear(fn5, 0x000fc000, 16384, 0));
 }
 
